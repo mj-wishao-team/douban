@@ -1,8 +1,8 @@
 package main
 
 import (
+	"douban/controller"
 	"github.com/gin-gonic/gin"
-	"movie.douban/controller"
 )
 
 func main() {

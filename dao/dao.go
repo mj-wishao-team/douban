@@ -2,9 +2,8 @@ package dao
 
 import (
 	"database/sql"
+	"douban/tool"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
-	"movie.douban/tool"
 )
 
 var DB *sql.DB

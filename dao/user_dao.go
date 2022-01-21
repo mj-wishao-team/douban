@@ -1,8 +1,8 @@
 package dao
 
 import (
+	"douban/model"
 	"fmt"
-	"movie.douban/model"
 )
 
 //判断电话是否注册

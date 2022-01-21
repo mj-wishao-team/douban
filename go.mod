@@ -1,4 +1,4 @@
-module movie.douban
+module douban
 
 go 1.17
 
