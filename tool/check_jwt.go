@@ -1,9 +1,9 @@
 package tool
 
 import (
+	"douban/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"movie.douban/model"
 )
 
 //检查token
