@@ -1,8 +1,8 @@
 package dao
 
 import (
+	"douban/tool"
 	"github.com/gin-gonic/gin"
-	"movie.douban/tool"
 	"time"
 )
 

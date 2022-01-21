@@ -1,11 +1,11 @@
 package service
 
 import (
+	"douban/dao"
+	"douban/model"
+	"douban/tool"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"movie.douban/dao"
-	"movie.douban/model"
-	"movie.douban/tool"
 	"net/smtp"
 	"strings"
 )

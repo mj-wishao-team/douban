@@ -1,12 +1,12 @@
 package controller
 
 import (
+	"douban/model"
+	"douban/param"
+	"douban/service"
+	"douban/tool"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"movie.douban/model"
-	"movie.douban/param"
-	"movie.douban/service"
-	"movie.douban/tool"
 	"net/http"
 	"strconv"
 	"strings"

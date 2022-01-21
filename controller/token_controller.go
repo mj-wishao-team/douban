@@ -1,10 +1,10 @@
 package controller
 
 import (
+	"douban/service"
+	"douban/tool"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"movie.douban/service"
-	"movie.douban/tool"
 	"net/http"
 )
 

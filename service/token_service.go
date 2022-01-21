@@ -1,9 +1,9 @@
 package service
 
 import (
+	"douban/model"
+	"douban/tool"
 	"github.com/dgrijalva/jwt-go"
-	"movie.douban/model"
-	"movie.douban/tool"
 	"time"
 )
 
