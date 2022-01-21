@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录豆瓣</title>
+    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="css/verify.css">
+</head>
+<body>
+
+    <div class="nav">
+        <div class="douban-logo">
+            <a href="#" target="blank"><img src="../../picture/login/douban_logo.png" width="142" alt="豆瓣" ></a>
+        </div>
+    </div>
+    <div class="login">
+        <div class="login-left">
+            <div class="login-picture"></div>
+            <div class="login-download">
+                <a href="../downloadApp/downloadApp.html" class="download-button" target="blank">下载豆瓣App</a>
+                <img src="../../picture/login/ic_qr_mini_login.png" class="download-picture"></img>
+                <p class="download-text">iOS / Android 扫码直接下载</p>
+            </div>
+        </div>
+        <div class="login-right">
+            <div class="QRcode-change">
+                <div class="QRcode-picture-hover">
+                    <div class="QRcode-text">扫码登录</div>
+                    <div class="QRcode-text-triangle"></div>
+                    <div class="QRcode-text-triangle-border"></div>
+                    <img class="QRcode-picture" src="../../picture/login/qrcode2.png"></img>
+                </div>
+                <div class="computer-picture-hover">
+                    <div class="computer-text">短信登陆/注册</div>
+                    <div class="computer-text-triangle"></div>
+                    <div class="computer-text-triangle-border"></div>
+                    <img class="computer-picture" src="../../picture/login/computer.png"></img>
+                </div>                   
+            </div>
+            <div class="login-text">   
+                <div class="login-main">
+                    <div class="login-switch">
+                        <div class="login-select-on" id="login-phone-way">短信登录／注册</div>
+                        <div class="login-no-select-on" id="login-password-way">密码登录</div>
+                    </div>
+                    <div class="switch-two-ways">
+                        <div class="phone-way">
+                            <div class="account-agreement">
+                                请仔细阅读 <a href="../agreement/agreement.html" target="blank">豆瓣使用协议、豆瓣个人信息保护政策</a>
+                            </div>
+                            <div class="error-message1">
+                              <span id="error-message1-text">请正确填写手机号</span>
+                            </div>
+                            <div class="phone-numbers">
+                                <div class="phone-area">+86</div>
+                                <input type="text" class="phone-numbers-input" placeholder="手机号">
+                            </div>
+                            <div class="SMS-verification-code">
+                                <input type="text" class="SMS-verification-code-input" placeholder="验证码">
+                                <a id="get-SMS-verification-code">获取验证码</a>
+                                <div id="countdown">60s 后重新发送</div>
+                            </div>
+                            <a class="login-button1">登录豆瓣</a>
+                            <div class="cant-verify"><a href="../help/help.html" target="blank">收不到验证码</a></div>
+                        </div>
+                        <div class="password-way">
+                            <div class="error-message2"></div>
+                            <div class="login-account">
+                                <input type="text" class="account-input" placeholder="手机号 / 邮箱">
+                            </div>
+                            <div class="password">
+                                <input type="text" class="password-input" placeholder="密码">
+                                <a href="#" target="blank">找回密码</a>
+                            </div>
+                            <a class="login-button2" class="login-button2">登录豆瓣</a>
+                            <div class="login-abroad"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="login-others">
+                    <div class="line"></div>
+                    <div class="login-others-up">第三方登录:</div>
+                    <div class="line"></div>
+                    <div class="login-others-choose">
+                        <a class="wechat" href="#" target="blank"></a>
+                        <a class="weibo" href="#" target="blank"></a>
+                        <a class="qq" href="#" target="blank"></a>
+                    </div>
+                </div>
+            </div>
+            <div class="login-QRcode">
+                <div class="text-change">
+                    <div class="text-text"></div>
+                    <div class="text-text-triangle"></div>
+                    <div class="text-picture"></div>
+                </div>
+                <div class="QRcode-words">二维码登录</div>
+                <img class="QRcode" src="../../picture/login/QRcode.png">
+                <div class="QRcode-helps">
+                    <img class="scan-picture" src="../../picture/login/scan.svg">
+                    <div class="scan-words">
+                        <p>打开<a href="../downloadApp/downloadApp.html" target="blank">豆瓣 App</a></p>
+                        <p>扫一扫登录</p>
+                    </div>
+                </div>
+                <div class="change-password-way">短信验证登录</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="all-phone-areas">
+        <div class="areas-select">
+            <div class="areas-select-text">选择国际区号</div>
+            <div class="areas-select-cancel">x</div>
+        </div>
+        <ul class="global-phone-list">
+            <li id="global-phone-list-li" class="is-active">
+              <span class="GlobalPhoneItem-district">
+                中国大陆
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=CN>+86</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                中国香港
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=HK>+852</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                中国澳门
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=MO>+853</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                中国台湾
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=TW>+886</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                日本
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=JP>+81</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                韩国
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=KR>+82</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                新加坡
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=SG>+65</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                泰国
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=TH>+66</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                马来西亚
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=MY>+60</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                美国
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=US>+1</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                加拿大
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=CA>+1</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                澳大利亚
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=AU>+61</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                英国
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=GB>+44</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                德国
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=DE>+49</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                法国
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=FR>+33</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                俄罗斯
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=RU>+7</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                印度
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=IN>+91</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                新西兰
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=NZ>+64</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                意大利
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=IT>+39</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                荷兰
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=NL>+31</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                西班牙
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=ES>+34</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                瑞典
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=SE>+46</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                奥地利
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=AT>+43</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                瑞士
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=CH>+41</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                立陶宛
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=LT>+370</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                菲律宾
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=PH>+63</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                印度尼西亚
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=ID>+62</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                越南
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=VN>+84</span>
+            </li>
+            <li id="global-phone-list-li" class="">
+              <span class="GlobalPhoneItem-district">
+                阿联酋
+              </span>
+              <span class="GlobalPhoneItem-number" data-abbr=AE>+971</span>
+            </li>
+        </ul>
+    </div>
+    <div id="mask-layer"></div>
+
+<!-- 网上偷的滑动拼图验证码 -->
+
+<!-- verify
+纯前端的验证码插件，大熊出品 -->
+
+    <div id="mpanel4">
+    </div>
+
+    <script type="text/javascript" src="js/jquery.min.js" ></script>
+    <script type="text/javascript" src="js/verify.js" ></script>
+    <!--<script type="text/javascript" src="js/verify.min.js" ></script>-->
+
+<script src="login.js"></script>
+</body>
+</html>

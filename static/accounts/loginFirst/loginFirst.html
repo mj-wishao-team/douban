@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册豆瓣账号</title>
+    <style type="text/css">
+        * {
+          padding: 0;
+          margin: 0;
+        }
+        #db-nav-sns {
+          position: relative;
+          zoom: 1;
+          background: #edf4ed; 
+        }
+        #db-nav-sns .nav-primary {
+          width: 1040px;
+          margin: 0 auto;
+          overflow: hidden;
+          padding: 22px 0 20px;
+          zoom: 1;
+        }
+        .account-wrap {
+          width: 1040px;
+          margin: 20px auto 0;
+          overflow: hidden;
+        }
+        .account-main {
+          float: left;
+          width: 590px;
+        }
+        .account-side {
+          float: right;
+          width: 310px;
+          color: #666;
+        }      
+        .main {
+            height: 330px;
+            width: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content:space-around;
+            margin-left: 100px;
+        }
+        .button {
+            width: 100px;
+            height: 36px;
+            font-weight: 600;
+            font-size: 15px;
+            color: #fff;
+            line-height: 36px;
+            text-align: center;
+            outline: 0;
+            cursor: pointer;
+            background-color: #41ac52;
+            border-radius: 3px;
+            text-decoration: none;
+        }
+        .error {
+            height: 30px;
+        }
+        .error-text {
+            color: red;
+            font-size: small;
+            display: none;
+        }
+        .small,.gery {
+            font-size: small;
+        }
+        .gery {
+            color: grey;
+        }
+        .right {
+            position: absolute;
+            right: 16%;
+            top: 20%;
+        }
+        .right a {
+            font-size: small;
+            text-decoration-line: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="db-nav-sns" class="nav">
+        <div class="nav-wrap">
+            <div class="nav-primary">
+                <a href="https://accounts.douban.com/">
+                    <img src="../../picture/login/douban_logo.png" width="142" alt="豆瓣">
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="main">
+        <h1>注册豆瓣帐号</h1>
+        <div class="small">创建密码，设置昵称</div>
+        <h4>设置密码:</h4>
+        <div class="password">
+            <input type="text">
+        </div>
+        <div class="gery">密码至少6个字符</div>
+        <div class="placeholder"></div>
+        <h4>设置昵称:</h4>
+        <div class="username">
+            <input type="text">
+        </div>
+        <div class="gery">昵称最多7个中文字符</div>
+        <div class="error">
+            <div class="error-text">
+                请填写至少六个字符的密码
+            </div>
+        </div>
+        <div class="button">确定</div>
+    </div>
+    <div class="right">
+        <a href="../downloadApp/downloadApp.html" target="blank">> 豆瓣App</a>
+    </div>
+</body>
+</html>

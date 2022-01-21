@@ -1,0 +1,159 @@
+.main {
+  width: 960px;
+  height: 650px;
+  margin: 20px auto;
+}
+
+.left {
+  background-image: url(../../picture/downloadApp/a1.jpg);
+  background-repeat: no-repeat;
+  background-size: 700px;
+  display: inline-block;
+  height: 650px;
+  width: 700px;
+}
+
+.right {
+  display: inline-block;
+  vertical-align: top;
+  width: 140px;
+  height: 650px;
+}
+
+.right * {
+  display: inline-block;
+}
+
+.right img:first-of-type {
+  height: 76px;
+  width: 76px;
+  margin: 0 26px;
+}
+
+.right img:last-of-type {
+  height: 70px;
+  margin: 0 34px;
+}
+
+.right p:first-of-type {
+  color: #292929;
+  font-size: 20px;
+  margin: 0 32px;
+}
+
+.right p:nth-of-type(2) {
+  height: 60px;
+}
+
+.right p:nth-of-type(2),
+.right p:last-of-type {
+  font-size: 12px;
+  color: #969696;
+}
+
+.right p:nth-of-type(2) {
+  margin: 0 4px;
+}
+
+.right p:last-of-type {
+  margin: 0 16px;
+}
+
+.placeholder1 {
+  height: 206px;
+}
+
+.a2,
+.a3,
+.a4,
+.a5 {
+  margin-top: 220px;
+  height: 720px;
+  width: 100%;
+  text-align: center;
+}
+
+.animation2 div:first-of-type,
+.animation3 div:first-of-type,
+.animation4 div:first-of-type,
+.animation5 div:first-of-type {
+  margin-bottom: 12px;
+  font-size: 27px;
+  line-height: 1.2;
+  color: #54b747;
+  font-weight: 300;
+}
+
+.animation2 div:last-of-type,
+.animation3 div:last-of-type,
+.animation4 div:last-of-type,
+.animation5 div:last-of-type {
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 0px;
+  color: #969696;
+  margin-bottom: 40px;
+}
+
+.picture2 img,
+.picture3 img,
+.picture4 img,
+.picture5 img {
+  width: 800px;
+}
+
+.picture2,
+.picture3,
+.picture4,
+.picture5 {
+  text-align: center;
+  width: 100%;
+}
+
+.a2 {
+  background-image: url(../../picture/downloadApp/b2.jpg);
+  background-repeat: no-repeat;
+  background-size: 1140px;
+}
+
+.a4 {
+  background-image: url(../../picture/downloadApp/b4.jpg);
+  background-repeat: no-repeat;
+  background-size: 1100px;
+}
+
+.a5 {
+  background-image: url(../../picture/downloadApp/b5.jpg);
+  background-repeat: no-repeat;
+  background-size: 1040px;
+  height: 100%;
+  width: 1000px;
+}
+
+.bottom {
+  padding-bottom: 140px;
+  text-align: center;
+}
+
+.bottom img {
+  height: 71px;
+}
+
+.bottom p {
+  padding: 0;
+  margin: 0;
+  color: #9b9b9b;
+  font-size: 10px;
+}
+
+#go-to-top {
+  height: 30px;
+  width: 30px;
+  background: url(../../picture/downloadApp/goToTop.png) no-repeat;
+  background-size: auto 100%;
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  cursor: pointer;
+  display: none;
+}
