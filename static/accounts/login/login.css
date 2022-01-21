@@ -1,0 +1,679 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.nav {
+  height: 70px;
+  width: 100%;
+  background-color: #edf4ed;
+}
+
+.douban-logo {
+  width: 1040px;
+  height: 70px;
+  margin: 0 auto;
+  overflow: hidden;
+  padding: 22px 0 20px;
+  zoom: 1;
+}
+
+.login {
+  width: 1002px;
+  margin: 84px auto 0;
+  position: relative;
+}
+
+.login-left {
+  position: relative;
+  display: inline-block;
+  height: 621px;
+  width: 494px;
+  left: 50%;
+  margin-left: -432px;
+}
+
+.login-picture {
+  background: url(../../picture/login/download1.png);
+  height: 584px;
+  width: 494px;
+  vertical-align: top;
+  background-size: 92%;
+  top: -40px;
+  overflow: visible;
+}
+
+.login-download {
+  position: relative;
+  text-align: center;
+  z-index: 20;
+  bottom: 44px;
+}
+
+.download-button {
+  height: 37px;
+  width: 131px;
+  display: inline-block;
+  margin-right: 2px;
+  vertical-align: top;
+  font-size: 0;
+  background: url(../../picture/login/download.png) 0 no-repeat;
+  background-size: 131px;
+}
+
+.download-picture {
+  width: 37px;
+  height: 37px;
+}
+
+.download-text {
+  font-size: smaller;
+  position: absolute;
+  top: 0px;
+  left: 298px;
+  background-color: #fff;
+  height: 20px;
+  display: none;
+}
+
+.download-picture:hover {
+  cursor: pointer;
+}
+
+.login-right {
+  height: 450px;
+  width: 340px;
+  background-color: #fff;
+  display: inline-block;
+  border: 1px solid #d8d8d8;
+  position: relative;
+  left: 50%;
+  margin-top: 66px;
+  margin-left: -46px;
+  vertical-align: top;
+}
+
+.QRcode-change {
+  width: 340px;
+  height: 52px;
+  position: relative;
+}
+
+.QRcode-text {
+  position: absolute;
+  right: 52px;
+  top: 1px;
+  background-color: #f7fbfa;
+  border: 1px solid #cdedd4;
+  border-radius: 4px;
+  height: 28px;
+  width: 64px;
+  font-size: small;
+  color: gray;
+  text-align: center;
+  line-height: 27px;
+  z-index: 3;
+  display: none;
+}
+
+.QRcode-text-triangle {
+  height: 0px;
+  width: 0px;
+  border-left: 10px solid #f7fbfa;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  position: absolute;
+  right: 44px;
+  top: 6px;
+  z-index: 4;
+  display: none;
+}
+
+.QRcode-text-triangle-border {
+  height: 0px;
+  width: 0px;
+  border-left: 12px solid #cdedd4;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  position: absolute;
+  right: 43px;
+  top: 4px;
+  z-index: 2;
+  display: none;
+}
+
+.QRcode-picture-hover {
+  display: inline-block;
+  height: 40px;
+  width: 40px;
+  margin: 9px 12px 0px 0px;
+  position: absolute;
+  right: 0px;
+  display: block;
+}
+
+.QRcode-picture-hover:hover .QRcode-text,
+.QRcode-picture-hover:hover .QRcode-text-triangle,
+.QRcode-picture-hover:hover .QRcode-text-triangle-border {
+  display: block;
+}
+
+.QRcode-picture {
+  height: 40px;
+  width: 40px;
+}
+
+.QRcode-picture-hover:hover .QRcode-picture {
+  cursor: pointer;
+  filter: contrast(130%);
+}
+
+.computer-text {
+  position: absolute;
+  right: 52px;
+  top: 1px;
+  background-color: #f7fbfa;
+  border: 1px solid #cdedd4;
+  border-radius: 4px;
+  height: 28px;
+  width: 96px;
+  font-size: small;
+  color: gray;
+  text-align: center;
+  line-height: 27px;
+  z-index: 3;
+  display: none;
+}
+
+.computer-text-triangle {
+  height: 0px;
+  width: 0px;
+  border-left: 10px solid #f7fbfa;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  position: absolute;
+  right: 44px;
+  top: 6px;
+  z-index: 4;
+  display: none;
+}
+
+.computer-text-triangle-border {
+  height: 0px;
+  width: 0px;
+  border-left: 12px solid #cdedd4;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  position: absolute;
+  right: 43px;
+  top: 4px;
+  z-index: 2;
+  display: none;
+}
+
+.computer-picture-hover {
+  display: inline-block;
+  height: 40px;
+  width: 40px;
+  margin: 9px 12px 0px 0px;
+  position: absolute;
+  right: 0px;
+  display: none;
+}
+
+.computer-picture-hover:hover .computer-text,
+.computer-picture-hover:hover .computer-text-triangle,
+.computer-picture-hover:hover .computer-text-triangle-border {
+  display: block;
+}
+
+.computer-picture {
+  height: 40px;
+  width: 40px;
+}
+
+.computer-picture-hover:hover .computer-picture {
+  cursor: pointer;
+  filter: contrast(130%);
+}
+
+.login-QRcode {
+  display: none;
+}
+
+.login-text {
+  position: relative;
+  height: 320px;
+}
+
+.login-switch {
+  width: 285px;
+  height: 39px;
+  margin: 0 auto;
+  border-bottom: 1px solid #ececec;
+}
+
+.login-select-on {
+  width: 140px;
+  height: 38px;
+  display: inline-block;
+  font-size: 18px;
+  line-height: 2;
+  text-align: center;
+  border-bottom: 2px solid #494949;
+  color: #333;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-no-select-on {
+  width: 140px;
+  height: 38px;
+  display: inline-block;
+  font-size: 18px;
+  line-height: 2;
+  text-align: center;
+  color: #9b9b9b;
+  cursor: pointer;
+}
+
+.account-agreement {
+  width: 286px;
+  margin: 12px auto;
+  color: #9b9b9b;
+  font-size: smaller;
+}
+
+.account-agreement a {
+  text-decoration: none;
+  color: #41ac52;
+}
+
+.error-message1 {
+  width: 280px;
+  height: 20px;
+  margin: 0 auto;
+}
+
+.error-message1 span {
+  padding-left: 16px;
+  color: #fe2617;
+  font-size: 13px;
+  line-height: 17px;
+  background-image: url(../../picture/login/error.svg);
+  background-repeat: no-repeat;
+  background-size: 12px;
+  background-position: 0 3px;
+  display: none;
+}
+
+.phone-numbers {
+  width: 280px;
+  height: 40px;
+  margin: 0 auto;
+  font-size: 13px;
+  padding: 10px;
+  border-radius: 3px;
+  box-sizing: border-box;
+  border: 1px solid #e4e6e5;
+}
+
+.phone-area {
+  display: inline-block;
+  vertical-align: middle;
+  padding-right: 10px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  height: 23px;
+  border-right: #e4e6e5 solid 1px;
+  cursor: pointer;
+}
+
+.phone-numbers-input {
+  border: none;
+  outline: none;
+}
+
+.SMS-verification-code {
+  width: 280px;
+  height: 40px;
+  margin: 10px auto;
+  font-size: 13px;
+  padding: 10px;
+  border-radius: 3px;
+  box-sizing: border-box;
+  border: 1px solid #e4e6e5;
+  position: relative;
+}
+
+.SMS-verification-code-input {
+  border: none;
+  outline: none;
+  width: 189px;
+}
+
+.SMS-verification-code a {
+  text-decoration: none;
+  color: #41ac52;
+  cursor: pointer;
+}
+
+#countdown {
+  position: absolute;
+  padding: 0 10px;
+  right: 0;
+  top: 0;
+  line-height: 38px;
+  display: none;
+  color: #cccccc;
+  font-size: small;
+}
+
+.login-button1 {
+  display: block;
+  margin: 10px auto;
+  width: 280px;
+  height: 36px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #fff;
+  line-height: 36px;
+  text-align: center;
+  outline: 0;
+  cursor: pointer;
+  background-color: #41ac52;
+  border-radius: 3px;
+  text-decoration: none;
+}
+
+.cant-verify {
+  width: 280px;
+  height: 42px;
+  margin: 0 auto;
+}
+
+.cant-verify a {
+  text-decoration: none;
+  color: #41ac52;
+  font-size: smaller;
+  padding-left: 200px;
+}
+
+.login-others-up {
+  display: inline-block;
+  font-size: smaller;
+  color: #9b9b9b;
+}
+
+.login-others-choose {
+  height: 20px;
+  width: 220px;
+  margin: 10px auto;
+}
+
+.login-others-choose a {
+  display: inline-block;
+  background-repeat: no-repeat;
+  vertical-align: middle;
+  width: 36px;
+  height: 36px;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  overflow: hidden;
+  line-height: 36px;
+  font-size: 0;
+  margin: 0 15px;
+}
+
+.password-way {
+  display: none;
+}
+
+.error-message2 {
+  width: 280px;
+  height: 36px;
+}
+
+.login-account {
+  width: 280px;
+  height: 40px;
+  margin: 0 auto;
+  font-size: 13px;
+  padding: 10px;
+  border-radius: 3px;
+  box-sizing: border-box;
+  border: 1px solid #e4e6e5;
+}
+
+.account-input {
+  border: none;
+  outline: none;
+}
+
+.password {
+  width: 280px;
+  height: 40px;
+  margin: 10px auto;
+  font-size: 13px;
+  padding: 10px;
+  border-radius: 3px;
+  box-sizing: border-box;
+  border: 1px solid #e4e6e5;
+}
+
+.password-input {
+  border: none;
+  outline: none;
+  width: 202px;
+}
+
+.password a {
+  text-decoration: none;
+  color: #9b9b9b;
+}
+
+.login-button2 {
+  display: block;
+  margin: 10px auto;
+  width: 280px;
+  height: 36px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #fff;
+  line-height: 36px;
+  text-align: center;
+  outline: 0;
+  cursor: pointer;
+  background-color: #41ac52;
+  border-radius: 3px;
+  text-decoration: none;
+}
+
+.login-others {
+  position: absolute;
+  left: 9%;
+  bottom: 0px;
+  height: 20px;
+  width: 280px;
+}
+
+.line {
+  display: inline-block;
+  width: 100px;
+  border-bottom: 1px solid #9b9b9b;
+  vertical-align: middle;
+}
+
+.wechat {
+  background-image: url(../../picture/login/wechat.svg);
+}
+
+.weibo {
+  background-image: url(../../picture/login/weibo.svg);
+}
+
+.qq {
+  background-image: url(../../picture/login/qq.svg);
+}
+
+.QRcode-words {
+  width: 280px;
+  height: 38px;
+  margin: 0 auto;
+  font-size: 18px;
+  line-height: 2;
+  border-bottom: 1px solid #ececec;
+  color: #333;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.QRcode {
+  height: 172px;
+  width: 172px;
+  display: block;
+  margin: 20px auto;
+}
+
+.QRcode-helps {
+  height: 40px;
+  width: 130px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.scan-picture,
+.scan-words {
+  display: inline-block;
+}
+
+.scan-words {
+  margin-left: 10px;
+  color: #494949;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.scan-words a {
+  text-decoration: none;
+  color: #41ac52;
+}
+
+.change-password-way {
+  color: #41ac52;
+  font-size: 13px;
+  line-height: 1.5;
+  text-decoration: none;
+  position: absolute;
+  bottom: 38px;
+  left: 38%;
+}
+
+.change-password-way:hover {
+  cursor: pointer;
+}
+
+.all-phone-areas {
+  width: 350px;
+  height: 445px;
+  border: 1px rgb(192, 191, 191) solid;
+  border-radius: 4px;
+  position: absolute;
+  left: 40%;
+  top: 26%;
+  display: none;
+  z-index: 999;
+}
+
+.areas-select {
+  height: 30px;
+  position: relative;
+  padding: 10px 10px 6px;
+  background: #ebf5eb;
+  border-radius: 4px 4px 0 0;
+}
+
+.areas-select-text {
+  font-size: 17px;
+  font-weight: bold;
+  color: #060;
+  padding-top: 4px;
+}
+
+.areas-select-cancel {
+  position: absolute;
+  right: 18px;
+  top: 8px;
+  color: #b4b4b4;
+  cursor: pointer;
+}
+
+.areas-select-cancel:hover {
+  color: #f8b0b6;
+}
+
+.global-phone-list {
+  overflow-y: scroll;
+  padding: 15px;
+  height: 369px;
+  border-radius: 0 4px 4px 0;
+  background-color: #fff;
+}
+
+.global-phone-list li {
+  text-align: justify;
+  text-justify: distribute;
+  width: 290px;
+  height: 36px;
+  border-top: 1px solid #e5e5e5;
+  line-height: 2.6;
+  color: #494949;
+  cursor: pointer;
+  font-size: small;
+  font-weight: bolder;
+  list-style: none;
+}
+
+.global-phone-list li > * {
+  display: inline-block;
+}
+
+.global-phone-list li:after {
+  content: "";
+  width: 100%;
+  display: inline-block;
+}
+
+.global-phone-list li:last-child {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.is-active > * {
+  color: #42bd56;
+}
+
+.is-active span:first-child:after {
+  content: "\2714\FE0E";
+  margin-left: 10px;
+}
+
+.mask-layer {
+  background: #fff;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index: 9;
+  left: 0;
+  top: 0;
+  opacity: 0.7;
+}
+
+#mpanel4 {
+  position: absolute;
+  top: 34%;
+  left: 36%;
+  display: none;
+  z-index: 90;
+}

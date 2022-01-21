@@ -1,0 +1,74 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.account-header {
+  height: 44px;
+  width: 100%;
+  font-size: 17px;
+  line-height: 44px;
+  text-align: center;
+  position: fixed;
+  top: 0;
+  background-color: #fff;
+  box-shadow: 0 0 1px 0 gray;
+}
+
+h4 {
+  margin-top: 10px;
+}
+
+.b {
+  font-weight: bold;
+}
+
+ul {
+  list-style: none;
+}
+
+.content-center {
+  text-align: center;
+}
+
+.content-right {
+  text-align: right;
+}
+
+.agreement-content {
+  line-height: 20px;
+  font-size: 13px;
+  width: 740px;
+  height: 820px;
+  overflow-y: auto;
+  margin: 50px auto;
+}
+
+.account-footer {
+  position: fixed;
+  bottom: 0;
+  height: 50px;
+  width: 100%;
+  padding: 0 15px;
+  font-size: 16px;
+  line-height: 50px;
+  background-color: #fff;
+  box-shadow: 0 0 1px 2px hsl(0deg 0% 60% / 10%);
+}
+
+.ok {
+  position: absolute;
+  right: 60px;
+  color: #00bb30;
+  font-weight: 700;
+}
+.ok:hover,
+.no:hover {
+  cursor: pointer;
+}
+
+.no {
+  position: absolute;
+  left: 20px;
+  color: #999;
+}
