@@ -17,6 +17,7 @@ type UserController struct {
 }
 
 func (u *UserController) Router(engine *gin.Engine) {
+
 	engine.GET("/api/user/get_user/:uid", JWTAuthMiddleware(), getUerInfo)
 	engine.POST("/api/user/get_user/:uid", JWTAuthMiddleware(), accountManagement)
 
@@ -26,12 +27,14 @@ func (u *UserController) Router(engine *gin.Engine) {
 	engine.POST("/api/user/login/pw", login)
 	engine.POST("/api/verify/emial", SendEmail)
 	engine.PUT("/api/user/unbind_phone", unbindPhone)
+	engine.PUT("/api/user/bind_phone", JWTAuthMiddleware(), bindPhone)
 	engine.PUT("/api/user/bind_email", JWTAuthMiddleware(), bindEmail)
 	engine.PUT("/api/user/unbind_email", JWTAuthMiddleware(), unbindEmail)
 }
 
 //User的账号设置
 //获取个人界面信息
+
 func getUerInfo(ctx *gin.Context) {
 	//获取用户ID
 	Id := ctx.MustGet("id").(int64)
@@ -62,7 +65,8 @@ func accountManagement(ctx *gin.Context) {
 func unbindPhone(ctx *gin.Context) {
 	var phoneParam param.Phone
 	id := ctx.MustGet("id").(int64)
-	tool.CatchPanic(ctx, "getUerInfo")
+	//var id int64=4
+	tool.CatchPanic(ctx, "unbindPhone")
 
 	err := ctx.ShouldBind(&phoneParam)
 
@@ -102,11 +106,72 @@ func unbindPhone(ctx *gin.Context) {
 		return
 	}
 
+	err = service.ChangePhone("", id)
+	if err != nil {
+		tool.RespErrorWithData(ctx, "解绑失败")
+		fmt.Println("unbindPhone_ChangePhone ERR is ", err)
+		return
+	}
+
 	tool.RespSuccessfulWithData(ctx, "解绑成功")
 }
 
 //绑定手机号
 func bindPhone(ctx *gin.Context) {
+	var phoneParam param.Phone
+	err := ctx.ShouldBind(&phoneParam)
+	id := ctx.MustGet("id").(int64)
+	tool.CatchPanic(ctx, "bindPhone")
+
+	if phoneParam.Phone == "" {
+		tool.RespErrorWithData(ctx, "手机号不能为空")
+		return
+	}
+
+	if err != nil {
+		if err.Error()[:12] == "Key: 'email." {
+			tool.RespErrorWithData(ctx, "缺少必要参数")
+			fmt.Println("bindPhone_ParesePara ERR is :", err)
+			return
+		}
+		tool.RespInternalError(ctx)
+		fmt.Println("binEmail_ParesePara ERR is :", err)
+		return
+	}
+
+	//校验验证码
+	flag, err := service.JudgeVerifyCode(ctx, phoneParam.Phone, phoneParam.VerifyCode)
+
+	if err != nil {
+		tool.RespInternalError(ctx)
+		fmt.Println("bindPhone_JudgeVerifyCode ERR is :", err)
+		return
+	}
+
+	if flag {
+		//判断phone 是否被注册过
+		_, bool, err := service.JudgeAndQueryUserByPhone(phoneParam.Phone)
+		if err != nil {
+			fmt.Println("bindPhone_JudgeAndQueryUserByPhone ERR is :", err)
+			tool.RespInternalError(ctx)
+			return
+		}
+		if bool {
+			tool.RespErrorWithData(ctx, "手机号已经被其他账号绑定")
+			return
+		}
+		err = service.ChangePhone(phoneParam.Phone, id)
+		if err != nil {
+			fmt.Println("bindPhone_ChangePhone ERR is :", err)
+			tool.RespInternalError(ctx)
+			return
+		}
+		tool.RespSuccessfulWithData(ctx, "绑定成功")
+		return
+	} else {
+		tool.RespErrorWithData(ctx, "验证码错误或者过期")
+		return
+	}
 
 }
 
@@ -174,7 +239,7 @@ func bindEmail(ctx *gin.Context) {
 			tool.RespInternalError(ctx)
 			return
 		}
-		if !bool {
+		if bool {
 			tool.RespErrorWithData(ctx, "邮箱已经被其他账号绑定")
 			return
 		}
@@ -198,7 +263,6 @@ func bindEmail(ctx *gin.Context) {
 func unbindEmail(ctx *gin.Context) {
 	var emailParam param.Email
 	id := ctx.MustGet("id").(int64)
-	tool.CatchPanic(ctx, "unbindEmail")
 
 	err := ctx.ShouldBind(&emailParam)
 
@@ -300,7 +364,7 @@ func login(ctx *gin.Context) {
 	if flag {
 		// 生成AceessToken 和RefreshToken
 		//accessToken 5分钟
-		accessToken, err := service.GenToken(User, 5, "ACCESS_TOKEN")
+		accessToken, err := service.GenToken(User, 300, "ACCESS_TOKEN")
 		if err != nil {
 			fmt.Println("CreateAccessTokenErr:", err)
 			tool.RespInternalError(ctx)

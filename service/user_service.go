@@ -55,6 +55,21 @@ func JudgeAndQueryUserByUserName(username string) (model.User, bool, error) {
 	return User, true, nil
 }
 
+//判断邮箱是否注册
+//true 注册 flase 未注册
+func JudgeAndQueryUserByEmail(email string) (model.User, bool, error) {
+	User, err := dao.QueryByEmail(email)
+	if err != nil {
+		//判断错误类型
+		if err.Error() == "sql: no rows in result set" {
+			return model.User{}, false, nil
+		}
+		return model.User{}, false, err
+	}
+
+	return User, true, nil
+}
+
 //判断密码
 func JudgePasswordCorrect(loginAccount, password string) (model.User, bool, error) {
 	// 判断登录类型
@@ -128,9 +143,14 @@ func SendCodeByEmail(email string) (string, error) {
 
 //修改邮箱or绑定邮箱
 func ChangeEmail(email string, id int64) error {
-	dao.ChangeEmail(email, id)
-	return nil
+	err := dao.ChangeEmail(email, id)
+	return err
+}
 
+//修改电话号码
+func ChangePhone(phone string, id int64) error {
+	err := dao.ChangePhone(phone, id)
+	return err
 }
 
 //redis 校验

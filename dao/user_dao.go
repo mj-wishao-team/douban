@@ -5,8 +5,26 @@ import (
 	"fmt"
 )
 
-//判断电话是否注册
+//修改电话号码
+func ChangePhone(phone string, id int64) error {
+	sqlStr := "UPDATE user SET phone = ? WHERE id = ?"
+	stmt, err := DB.Prepare(sqlStr)
+	defer stmt.Close()
 
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(phone, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+//判断电话是否注测
 //修改邮箱
 func ChangeEmail(email string, id int64) error {
 	sqlStr := "UPDATE user SET email = ? WHERE id = ?"

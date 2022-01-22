@@ -68,14 +68,9 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 
 		Clams, flag, err := service.ParseToken(parts[1], parts[2])
 		if err != nil {
-			if err.Error()[:16] == "token is expired" {
-				fmt.Println("Refresh_token is expired  ERR is :", err)
-				tool.RespErrorWithData(ctx, "TOKEN_EXPIRED")
-				return
-			}
-
 			fmt.Println("ParesTokenERR:", err)
-			tool.RespErrorWithData(ctx, "TOKEN_ERROR")
+			tool.RespErrorWithData(ctx, "你需要重新登录")
+			ctx.Abort()
 			return
 		}
 		// accessToken 已经失效，需要刷新双Token
@@ -85,6 +80,7 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 			if err != nil {
 				fmt.Println("JWTAuthMiddleware_CreateAccessTokenErr:", err)
 				tool.RespInternalError(ctx)
+				ctx.Abort()
 				return
 			}
 
@@ -93,12 +89,15 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 			if err != nil {
 				fmt.Println("JWTAuthMiddleware_CreateRefreshTokenErr:", err)
 				tool.RespInternalError(ctx)
+				ctx.Abort()
 				return
 			}
+			fmt.Println("token 更新")
+			fmt.Println(accessToken + " " + refreshToken)
 
 			// 如果需要刷新双Token时，返回双Token
 			ctx.JSON(200, gin.H{
-				"msg":           "Token Refresh Success",
+				"data":          "Token Refresh Success",
 				"access_token":  accessToken,
 				"refresh_token": refreshToken,
 			})
@@ -106,4 +105,5 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 		ctx.Set("id", Clams.User.Id)
 		ctx.Next()
 	}
+
 }

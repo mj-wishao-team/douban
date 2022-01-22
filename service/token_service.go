@@ -37,10 +37,6 @@ func ParseToken(accessTokenString, refreshTokenString string) (*model.MyClaims, 
 	accessToken, err := jwt.ParseWithClaims(accessTokenString, &model.MyClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(JwtCfg.AccessSecret), nil
 	})
-	//若果access_token 错误类型不是过期 则需要重新登录
-	if err.Error()[:16] != "token is expired" {
-		return nil, false, err
-	}
 
 	//access_token 没有过期
 	if claims, ok := accessToken.Claims.(*model.MyClaims); ok && accessToken.Valid {
