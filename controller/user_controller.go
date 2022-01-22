@@ -25,6 +25,7 @@ func (u *UserController) Router(engine *gin.Engine) {
 	engine.POST("/api/user/login/sms", loginBySms)
 	engine.POST("/api/user/login/pw", login)
 	engine.POST("/api/verify/emial", SendEmail)
+	engine.PUT("/api/user/unbind_phone", unbindPhone)
 	engine.PUT("/api/user/bind_email", JWTAuthMiddleware(), bindEmail)
 	engine.PUT("/api/user/unbind_email", JWTAuthMiddleware(), unbindEmail)
 }
@@ -54,6 +55,58 @@ func getUerInfo(ctx *gin.Context) {
 
 //账号管理
 func accountManagement(ctx *gin.Context) {
+
+}
+
+//解绑手机号
+func unbindPhone(ctx *gin.Context) {
+	var phoneParam param.Phone
+	id := ctx.MustGet("id").(int64)
+	tool.CatchPanic(ctx, "getUerInfo")
+
+	err := ctx.ShouldBind(&phoneParam)
+
+	if err != nil {
+		if err.Error()[:12] == "Key: 'Phone." {
+			tool.RespErrorWithData(ctx, "参数解析失败")
+			fmt.Println("unbindPhone_ShouldBind ERR is", err)
+			return
+		}
+		tool.RespInternalError(ctx)
+		fmt.Println("unbindPhone_ParesePara ERR is :", err)
+		return
+	}
+
+	User, bool, err := service.JudgeAndQueryUserByUserID(id)
+
+	if err != nil {
+		tool.RespInternalError(ctx)
+		fmt.Println("unbind_JudgeAndQueryUserByUserID ERR is :", err)
+		return
+	}
+	if !bool {
+		tool.RespErrorWithData(ctx, "用户id不存在")
+		return
+	}
+
+	//校验验证码
+	flag, err := service.JudgeVerifyCode(ctx, User.Phone, phoneParam.VerifyCode)
+
+	if err != nil {
+		tool.RespInternalError(ctx)
+		fmt.Println("unbindPhone_JudgeVerifyCode ERR is :", err)
+		return
+	}
+	if !flag {
+		tool.RespErrorWithData(ctx, "验证码或密码错误")
+		return
+	}
+
+	tool.RespSuccessfulWithData(ctx, "解绑成功")
+}
+
+//绑定手机号
+func bindPhone(ctx *gin.Context) {
 
 }
 
@@ -97,7 +150,7 @@ func bindEmail(ctx *gin.Context) {
 	if err != nil {
 		if err.Error()[:12] == "Key: 'Email." {
 			tool.RespErrorWithData(ctx, "缺少必要参数")
-			fmt.Println("changeEmail_ParesePara ERR is :", err)
+			fmt.Println("bindEmail_ParesePara ERR is :", err)
 			return
 		}
 		tool.RespInternalError(ctx)
@@ -110,12 +163,22 @@ func bindEmail(ctx *gin.Context) {
 
 	if err != nil {
 		tool.RespInternalError(ctx)
-		fmt.Println("ChangeEmail_JudgeVerifyCode ERR is :", err)
+		fmt.Println("bindEmail_JudgeVerifyCode ERR is :", err)
 		return
 	}
 
 	if flag {
-		err := service.ChangeEmail(emailParam.Email, id)
+		_, bool, err := service.JudgeAndQueryUserByEmail(emailParam.Email)
+		if err != nil {
+			fmt.Println("bindEmail_JudgeAndQueryUserByEmail ERR is :", err)
+			tool.RespInternalError(ctx)
+			return
+		}
+		if !bool {
+			tool.RespErrorWithData(ctx, "邮箱已经被其他账号绑定")
+			return
+		}
+		err = service.ChangeEmail(emailParam.Email, id)
 		if err != nil {
 			fmt.Println("bindEmail_ChangeEmail ERR is :", err)
 			tool.RespInternalError(ctx)
@@ -433,4 +496,5 @@ func register(ctx *gin.Context) {
 		return
 	}
 	tool.RespSuccessfulWithData(ctx, "注册成功")
+
 }
