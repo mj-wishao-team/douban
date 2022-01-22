@@ -31,7 +31,7 @@ func (u *UserController) Router(engine *gin.Engine) {
 	engine.PUT("/api/user/bind_phone", JWTAuthMiddleware(), bindPhone)
 	engine.PUT("/api/user/bind_email", JWTAuthMiddleware(), bindEmail)
 	engine.PUT("/api/user/unbind_email", JWTAuthMiddleware(), unbindEmail)
-	engine.PUT("/api/user/change_name", JWTAuthMiddleware(), changeAccount)
+	engine.PUT("/api/user/change_account", JWTAuthMiddleware(), changeAccount)
 
 	engine.DELETE("/api/user/suicide", JWTAuthMiddleware(), suicideAccount)
 }
@@ -68,17 +68,66 @@ func accountManagement(ctx *gin.Context) {
 //改变昵称
 //30天才能改一次
 func changeAccount(ctx *gin.Context) {
-	Newname := ctx.PostForm("new_username")
-	_, flag, err := service.JudgeAndQueryUserByUserName(Newname)
+	Id := ctx.MustGet("id").(int64)
+	tool.CatchPanic(ctx, "changeAccount")
+
+	var accountParam param.Account
+	err := ctx.ShouldBind(&accountParam)
 	if err != nil {
-		tool.RespInternalError(ctx)
-		fmt.Println("changeName_JudgeAndQueryUserByUserID is ERR", err)
+		tool.RespErrorWithData(ctx, "参数解析失败")
 		return
 	}
-	if flag {
-		tool.RespErrorWithData(ctx, "该用户名已经被注册")
+
+	if accountParam.NewName != "" {
+		err := service.ChangeUserName(accountParam.NewName, Id)
+		if err != nil {
+			tool.RespErrorWithData(ctx, "修改失败")
+			fmt.Println("changeAccount_ChangeUserName is ERR :", err)
+			return
+		}
 	}
-	service.ChangeUserName(id)
+
+	if accountParam.Hometown != "" {
+		err := service.ChangeHometown(accountParam.Hometown, Id)
+		if err != nil {
+			tool.RespErrorWithData(ctx, "修改失败")
+			return
+		}
+	}
+
+	if accountParam.Birthday != "" {
+		Birthday, err := time.ParseInLocation("2006-01-02", accountParam.Birthday, time.Local)
+		if err != nil {
+			fmt.Println("changeAccount_ParseInLocationErr: ", err)
+			tool.RespErrorWithData(ctx, "日期格式错误")
+			return
+		}
+		err = service.ChangeBirthday(Birthday, Id)
+		if err != nil {
+			tool.RespErrorWithData(ctx, "修改失败")
+			return
+		}
+	}
+
+	if accountParam.HometownPublic != "" {
+		err := service.ChangeHometownPubic(accountParam.HometownPublic, Id)
+		if err != nil {
+			fmt.Println("changeAccount_ChangeHometownPubic ERR", err)
+			tool.RespErrorWithData(ctx, "修改失败")
+			return
+		}
+
+	}
+
+	if accountParam.BirthdayPublic != "" {
+		err := service.ChangeBirthdayPublic(accountParam.BirthdayPublic, Id)
+		if err != nil {
+			fmt.Println("changeAccount_ChangeBirthdayPublic ERR", err)
+			tool.RespErrorWithData(ctx, "修改失败")
+			return
+		}
+	}
+	tool.RespSuccessfulWithData(ctx, "修改成功")
 }
 
 //注销账号

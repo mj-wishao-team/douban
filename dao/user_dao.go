@@ -3,7 +3,100 @@ package dao
 import (
 	"douban/model"
 	"fmt"
+	"time"
 )
+
+//修改家乡公开
+func ChangeHometownPublic(hometownPublic string, id int64) error {
+	sqlStr := "UPDATE user SET hometown_public = ? WHERE id = ?"
+	stmt, err := DB.Prepare(sqlStr)
+	defer stmt.Close()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(hometownPublic, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+//修改生日公开
+func ChangeBirthdayPublic(birthdayPublic string, id int64) error {
+	sqlStr := "UPDATE user SET birthday_public = ? WHERE id = ?"
+	stmt, err := DB.Prepare(sqlStr)
+	defer stmt.Close()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(birthdayPublic, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+//修改生日
+func ChangeBirthday(birthday time.Time, id int64) error {
+	sqlStr := "UPDATE user SET birthday = ? WHERE id = ?"
+	stmt, err := DB.Prepare(sqlStr)
+	defer stmt.Close()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(birthday, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+//修改家乡
+func ChangeHometown(hometown string, id int64) error {
+	sqlStr := "UPDATE user SET hometown = ? WHERE id = ?"
+	stmt, err := DB.Prepare(sqlStr)
+	defer stmt.Close()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(hometown, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+//修改名字
+func ChangUserName(name string, id int64) error {
+	sqlStr := "UPDATE user SET username = ? WHERE id = ?"
+	stmt, err := DB.Prepare(sqlStr)
+	defer stmt.Close()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(name, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 //删除账号
 func DeleteAccount(id int64) error {

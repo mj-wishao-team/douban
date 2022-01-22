@@ -8,7 +8,38 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/smtp"
 	"strings"
+	"time"
 )
+
+//修改是否公开生日
+func ChangeBirthdayPublic(birthdayPublic string, id int64) error {
+	err := dao.ChangeBirthdayPublic(birthdayPublic, id)
+	return err
+}
+
+//修改是否公开家乡
+func ChangeHometownPubic(hometownPublic string, id int64) error {
+	err := dao.ChangeHometownPublic(hometownPublic, id)
+	return err
+}
+
+//修改生日
+func ChangeBirthday(birthday time.Time, id int64) error {
+	err := dao.ChangeBirthday(birthday, id)
+	return err
+}
+
+//修改家乡地址
+func ChangeHometown(hometown string, id int64) error {
+	err := dao.ChangeHometown(hometown, id)
+	return err
+}
+
+//修改用户名
+func ChangeUserName(name string, id int64) error {
+	err := dao.ChangUserName(name, id)
+	return err
+}
 
 //删除账户
 func DeleteAccount(id int64) error {
