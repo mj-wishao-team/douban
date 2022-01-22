@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"douban/service"
+	"douban/tool"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -39,5 +41,69 @@ func Cors() gin.HandlerFunc {
 
 		//处理请求
 		context.Next()
+	}
+}
+
+//当access_token失效时，使用refresh_token来请求刷新access_token和refresh_token。
+//如果refreshToken过期，需要用户重新登，并且重新刷新accessToken和refreshToken
+
+func JWTAuthMiddleware() func(ctx *gin.Context) {
+	return func(ctx *gin.Context) {
+		// 默认双Token放在请求头Authorization的Bearer中，并以空格隔开
+		authHeader := ctx.Request.Header.Get("Authorization")
+		fmt.Println(ctx.Request.Header)
+		if authHeader == "" {
+			tool.RespErrorWithData(ctx, "请求头为空")
+			ctx.Abort()
+			return
+		}
+
+		parts := strings.Split(authHeader, " ")
+
+		if !(len(parts) == 3 && parts[0] == "Bearer") {
+			tool.RespErrorWithData(ctx, "请求头内token格式有误")
+			ctx.Abort()
+			return
+		}
+
+		Clams, flag, err := service.ParseToken(parts[1], parts[2])
+		if err != nil {
+			if err.Error()[:16] == "token is expired" {
+				fmt.Println("Refresh_token is expired  ERR is :", err)
+				tool.RespErrorWithData(ctx, "TOKEN_EXPIRED")
+				return
+			}
+
+			fmt.Println("ParesTokenERR:", err)
+			tool.RespErrorWithData(ctx, "TOKEN_ERROR")
+			return
+		}
+		// accessToken 已经失效，需要刷新双Token
+		if flag {
+
+			accessToken, err := service.GenToken(Clams.User, 300, "ACCESS_TOKEN")
+			if err != nil {
+				fmt.Println("JWTAuthMiddleware_CreateAccessTokenErr:", err)
+				tool.RespInternalError(ctx)
+				return
+			}
+
+			//refreshToken 一周
+			refreshToken, err := service.GenToken(Clams.User, 604800, "REFRESH_TOKEN")
+			if err != nil {
+				fmt.Println("JWTAuthMiddleware_CreateRefreshTokenErr:", err)
+				tool.RespInternalError(ctx)
+				return
+			}
+
+			// 如果需要刷新双Token时，返回双Token
+			ctx.JSON(200, gin.H{
+				"msg":           "Token Refresh Success",
+				"access_token":  accessToken,
+				"refresh_token": refreshToken,
+			})
+		}
+		ctx.Set("id", Clams.User.Id)
+		ctx.Next()
 	}
 }

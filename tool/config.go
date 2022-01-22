@@ -41,7 +41,8 @@ type SmsCfg struct {
 }
 
 type JwtCfg struct {
-	MySecret string `json:"JwtSecret"`
+	RefreshSecret string `json:"refresh_secret"`
+	AccessSecret  string `json:"access_secret"`
 }
 
 type RedisConfig struct {

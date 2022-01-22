@@ -17,20 +17,19 @@ type UserController struct {
 }
 
 func (u *UserController) Router(engine *gin.Engine) {
-	engine.GET("/api/user/get_user/:uid", getUerInfo)
-	engine.POST("/api/user/get_user/:uid", accountManagement)
+	engine.GET("/api/user/get_user/:uid", JWTAuthMiddleware(), getUerInfo)
+	engine.POST("/api/user/get_user/:uid", JWTAuthMiddleware(), accountManagement)
 
 	engine.POST("/api/verify/sms", sendSms)
 	engine.POST("/api/user/register", register)
 	engine.POST("/api/user/login/sms", loginBySms)
 	engine.POST("/api/user/login/pw", login)
-	engine.POST("/api/verify/emial", SendEmail)
-	engine.PUT("/api/user/bind_email", bindEmail)
-	engine.PUT("/api/user/unbind_email", unbindEmail)
+	engine.POST("/api/verify/emial", JWTAuthMiddleware(), SendEmail)
+	engine.PUT("/api/user/bind_email", JWTAuthMiddleware(), bindEmail)
+	engine.PUT("/api/user/unbind_email", JWTAuthMiddleware(), unbindEmail)
 }
 
 //User的账号设置
-
 //获取个人界面信息
 func getUerInfo(ctx *gin.Context) {
 	//获取用户ID
@@ -63,7 +62,6 @@ func accountManagement(ctx *gin.Context) {
 
 //发送邮箱
 func SendEmail(ctx *gin.Context) {
-	//将大写转化成小写提升用户体验
 	email := strings.ToLower(ctx.PostForm("email"))
 
 	if !tool.VerifyEmailFormat(email) {
@@ -91,6 +89,7 @@ func SendEmail(ctx *gin.Context) {
 func bindEmail(ctx *gin.Context) {
 	var emailParam param.Email
 	err := ctx.ShouldBind(&emailParam)
+	id := ctx.MustGet("id").(int64)
 
 	if emailParam.Email == "" {
 		tool.RespErrorWithData(ctx, "邮箱不能为空")
@@ -108,22 +107,8 @@ func bindEmail(ctx *gin.Context) {
 		return
 	}
 
-	//获取token来得到用户信息
-	//token只能来获取不可修改的用户内容
-	claims, err := service.ParseAccessToken(emailParam.Token)
-	flag := tool.CheckToken(ctx, claims, err)
-	if !flag {
-		return
-	}
-
-	if err != nil {
-		tool.RespInternalError(ctx)
-		fmt.Println("bindEmail_ParseAccessToken ERR is :", err)
-		return
-	}
-
 	//校验验证码
-	flag, err = service.JudgeVerifyCode(ctx, emailParam.Email, emailParam.VerifyCode)
+	flag, err := service.JudgeVerifyCode(ctx, emailParam.Email, emailParam.VerifyCode)
 
 	if err != nil {
 		tool.RespInternalError(ctx)
@@ -132,7 +117,7 @@ func bindEmail(ctx *gin.Context) {
 	}
 
 	if flag {
-		err := service.ChangeEmail(emailParam.Email, claims.User.Id)
+		err := service.ChangeEmail(emailParam.Email, id)
 		if err != nil {
 			fmt.Println("bindEmail_ChangeEmail ERR is :", err)
 			tool.RespInternalError(ctx)
@@ -151,6 +136,7 @@ func bindEmail(ctx *gin.Context) {
 //若解绑则默认为有手机号
 func unbindEmail(ctx *gin.Context) {
 	var emailParam param.Email
+	id := ctx.MustGet("id").(int64)
 	err := ctx.ShouldBind(&emailParam)
 
 	if err != nil {
@@ -169,21 +155,7 @@ func unbindEmail(ctx *gin.Context) {
 		return
 	}
 
-	//获取token来得到用户id 如果是直接token来获取用户信息的话 token也要跟新
-	claims, err := service.ParseAccessToken(emailParam.Token)
-	flag := tool.CheckToken(ctx, claims, err)
-
-	if !flag {
-		return
-	}
-
-	if err != nil {
-		tool.RespInternalError(ctx)
-		fmt.Println("unbindEmail_ParseAccessToken ERR is :", err)
-		return
-	}
-	//通过id来得到用户信息
-	User, bool, err := service.JudgeAndQueryUserByUserID(claims.User.Id)
+	User, bool, err := service.JudgeAndQueryUserByUserID(id)
 
 	if err != nil {
 		tool.RespInternalError(ctx)
@@ -196,7 +168,7 @@ func unbindEmail(ctx *gin.Context) {
 	}
 
 	//校验验证码
-	flag, err = service.JudgeVerifyCode(ctx, User.Email, emailParam.VerifyCode)
+	flag, err := service.JudgeVerifyCode(ctx, User.Email, emailParam.VerifyCode)
 
 	if err != nil {
 		tool.RespInternalError(ctx)
@@ -222,7 +194,7 @@ func unbindEmail(ctx *gin.Context) {
 		return
 	} else {
 		//
-		err := service.ChangeEmail("", claims.User.Id)
+		err := service.ChangeEmail("", id)
 		if err != nil {
 			fmt.Println("unbindEmail_ChangeEmail ERR is :", err)
 			tool.RespInternalError(ctx)
@@ -265,7 +237,7 @@ func login(ctx *gin.Context) {
 	if flag {
 		// 生成AceessToken 和RefreshToken
 		//accessToken 5分钟
-		accessToken, err := service.GenToken(User, 300, "ACCESS_TOKEN")
+		accessToken, err := service.GenToken(User, 5, "ACCESS_TOKEN")
 		if err != nil {
 			fmt.Println("CreateAccessTokenErr:", err)
 			tool.RespInternalError(ctx)
@@ -286,6 +258,7 @@ func login(ctx *gin.Context) {
 			"status":        "ture",
 			"data":          User.Id,
 		})
+		fmt.Println(accessToken + " " + refreshToken)
 		return
 	}
 }
@@ -387,6 +360,7 @@ func loginBySms(ctx *gin.Context) {
 			"data":          User.Id,
 			"info":          "登录成功",
 		})
+		fmt.Println(accessToken + " " + refreshToken)
 	} else {
 		//新用户跳转到注册界面
 		ctx.JSON(http.StatusOK, gin.H{

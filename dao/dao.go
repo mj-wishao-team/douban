@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"douban/tool"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var DB *sql.DB
