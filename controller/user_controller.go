@@ -24,7 +24,7 @@ func (u *UserController) Router(engine *gin.Engine) {
 	engine.POST("/api/user/register", register)
 	engine.POST("/api/user/login/sms", loginBySms)
 	engine.POST("/api/user/login/pw", login)
-	engine.POST("/api/verify/emial", JWTAuthMiddleware(), SendEmail)
+	engine.POST("/api/verify/emial", SendEmail)
 	engine.PUT("/api/user/bind_email", JWTAuthMiddleware(), bindEmail)
 	engine.PUT("/api/user/unbind_email", JWTAuthMiddleware(), unbindEmail)
 }
@@ -33,12 +33,9 @@ func (u *UserController) Router(engine *gin.Engine) {
 //获取个人界面信息
 func getUerInfo(ctx *gin.Context) {
 	//获取用户ID
-	Id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
-	if err != nil {
-		fmt.Println("getUerInfo_ParseInt is Err: ", err)
-		tool.RespErrorWithData(ctx, "UID无效")
-		return
-	}
+	Id := ctx.MustGet("id").(int64)
+
+	tool.CatchPanic(ctx, "getUerInfo")
 
 	_, flag, err := service.JudgeAndQueryUserByUserID(Id)
 
@@ -90,6 +87,7 @@ func bindEmail(ctx *gin.Context) {
 	var emailParam param.Email
 	err := ctx.ShouldBind(&emailParam)
 	id := ctx.MustGet("id").(int64)
+	tool.CatchPanic(ctx, "bindEmail")
 
 	if emailParam.Email == "" {
 		tool.RespErrorWithData(ctx, "邮箱不能为空")
@@ -137,6 +135,8 @@ func bindEmail(ctx *gin.Context) {
 func unbindEmail(ctx *gin.Context) {
 	var emailParam param.Email
 	id := ctx.MustGet("id").(int64)
+	tool.CatchPanic(ctx, "unbindEmail")
+
 	err := ctx.ShouldBind(&emailParam)
 
 	if err != nil {
