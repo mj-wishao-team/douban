@@ -5,6 +5,19 @@ import (
 	"fmt"
 )
 
+//删除账号
+func DeleteAccount(id int64) error {
+	sqlStr := "DELETE FROM user WHERE( id= ?)"
+	stmt, err := DB.Prepare(sqlStr)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(id)
+	return err
+
+}
+
 //修改电话号码
 func ChangePhone(phone string, id int64) error {
 	sqlStr := "UPDATE user SET phone = ? WHERE id = ?"

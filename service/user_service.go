@@ -10,6 +10,12 @@ import (
 	"strings"
 )
 
+//删除账户
+func DeleteAccount(id int64) error {
+	err := dao.DeleteAccount(id)
+	return err
+}
+
 //判断ID是否正确，并获取User信息
 //ture 正确 flase 错误
 func JudgeAndQueryUserByUserID(Id int64) (model.User, bool, error) {

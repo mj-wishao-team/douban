@@ -26,10 +26,14 @@ func (u *UserController) Router(engine *gin.Engine) {
 	engine.POST("/api/user/login/sms", loginBySms)
 	engine.POST("/api/user/login/pw", login)
 	engine.POST("/api/verify/emial", SendEmail)
-	engine.PUT("/api/user/unbind_phone", unbindPhone)
+
+	engine.PUT("/api/user/unbind_phone", JWTAuthMiddleware(), unbindPhone)
 	engine.PUT("/api/user/bind_phone", JWTAuthMiddleware(), bindPhone)
 	engine.PUT("/api/user/bind_email", JWTAuthMiddleware(), bindEmail)
 	engine.PUT("/api/user/unbind_email", JWTAuthMiddleware(), unbindEmail)
+	//engine.PUT("/api/user/change_name",JWTAuthMiddleware(),changeName)
+
+	engine.DELETE("/api/user/suicide", JWTAuthMiddleware(), suicideAccount)
 }
 
 //User的账号设置
@@ -59,6 +63,27 @@ func getUerInfo(ctx *gin.Context) {
 //账号管理
 func accountManagement(ctx *gin.Context) {
 
+}
+
+//改变昵称
+//30天才能改一次
+//func  changeName(ctx *gin.Context){
+//	id := ctx.MustGet("id").(int64)
+//	tool.CatchPanic(ctx,"suicideAccount")
+//	service.changeUserName(id)
+//}
+
+//注销账号
+func suicideAccount(ctx *gin.Context) {
+	id := ctx.MustGet("id").(int64)
+	tool.CatchPanic(ctx, "suicideAccount")
+	err := service.DeleteAccount(id)
+	if err != nil {
+		tool.RespErrorWithData(ctx, "注销失败")
+		fmt.Println("suicideAccount_DeleteAccount  is ERR", err)
+		return
+	}
+	tool.RespSuccessfulWithData(ctx, "注销成功")
 }
 
 //解绑手机号
