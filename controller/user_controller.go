@@ -31,7 +31,7 @@ func (u *UserController) Router(engine *gin.Engine) {
 	engine.PUT("/api/user/bind_phone", JWTAuthMiddleware(), bindPhone)
 	engine.PUT("/api/user/bind_email", JWTAuthMiddleware(), bindEmail)
 	engine.PUT("/api/user/unbind_email", JWTAuthMiddleware(), unbindEmail)
-	//engine.PUT("/api/user/change_name",JWTAuthMiddleware(),changeName)
+	engine.PUT("/api/user/change_name", JWTAuthMiddleware(), changeAccount)
 
 	engine.DELETE("/api/user/suicide", JWTAuthMiddleware(), suicideAccount)
 }
@@ -67,11 +67,19 @@ func accountManagement(ctx *gin.Context) {
 
 //改变昵称
 //30天才能改一次
-//func  changeName(ctx *gin.Context){
-//	id := ctx.MustGet("id").(int64)
-//	tool.CatchPanic(ctx,"suicideAccount")
-//	service.changeUserName(id)
-//}
+func changeAccount(ctx *gin.Context) {
+	Newname := ctx.PostForm("new_username")
+	_, flag, err := service.JudgeAndQueryUserByUserName(Newname)
+	if err != nil {
+		tool.RespInternalError(ctx)
+		fmt.Println("changeName_JudgeAndQueryUserByUserID is ERR", err)
+		return
+	}
+	if flag {
+		tool.RespErrorWithData(ctx, "该用户名已经被注册")
+	}
+	service.ChangeUserName(id)
+}
 
 //注销账号
 func suicideAccount(ctx *gin.Context) {
@@ -532,18 +540,6 @@ func register(ctx *gin.Context) {
 	if err != nil {
 		//若前端没有把phone填入则返回解析失败
 		tool.RespErrorWithData(ctx, "参数解析失败")
-		return
-	}
-
-	//判断用户名否注册
-	_, flag, err := service.JudgeAndQueryUserByUserName(registerParam.Username)
-	if err != nil {
-		tool.RespInternalError(ctx)
-		fmt.Println("register is err: ", err)
-		return
-	}
-	if flag {
-		tool.RespErrorWithData(ctx, "该用户名已经注册")
 		return
 	}
 
