@@ -31,6 +31,7 @@ func (u *UserController) Router(engine *gin.Engine) {
 	engine.PUT("/api/user/bind_phone", JWTAuthMiddleware(), bindPhone)
 	engine.PUT("/api/user/bind_email", JWTAuthMiddleware(), bindEmail)
 	engine.PUT("/api/user/unbind_email", JWTAuthMiddleware(), unbindEmail)
+	engine.PUT("/api/user/change_habitat", JWTAuthMiddleware(), changeHabitat)
 	engine.PUT("/api/user/change_account", JWTAuthMiddleware(), changeAccount)
 
 	engine.DELETE("/api/user/suicide", JWTAuthMiddleware(), suicideAccount)
@@ -65,8 +66,22 @@ func accountManagement(ctx *gin.Context) {
 
 }
 
-//改变昵称
-//30天才能改一次
+//修改常常住地
+func changeHabitat(ctx *gin.Context) {
+	Id := ctx.MustGet("id").(int64)
+	tool.CatchPanic(ctx, "changeHabitat")
+	Habitat := ctx.PostForm("habitat")
+
+	err := service.ChangeHabitat(Habitat, Id)
+	if err != nil {
+		tool.RespErrorWithData(ctx, "修改常住地失败")
+		fmt.Println("changeHabitat_ChangeHabitat ERR is", err)
+		return
+	}
+	tool.RespSuccessfulWithData(ctx, "修改成功")
+}
+
+//修改账户信息
 func changeAccount(ctx *gin.Context) {
 	Id := ctx.MustGet("id").(int64)
 	tool.CatchPanic(ctx, "changeAccount")

@@ -11,6 +11,12 @@ import (
 	"time"
 )
 
+//修改常驻地
+func ChangeHabitat(habitat string, id int64) error {
+	err := dao.ChangeHabitat(habitat, id)
+	return err
+}
+
 //修改是否公开生日
 func ChangeBirthdayPublic(birthdayPublic string, id int64) error {
 	err := dao.ChangeBirthdayPublic(birthdayPublic, id)
