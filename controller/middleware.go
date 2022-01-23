@@ -96,12 +96,15 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 			fmt.Println(accessToken + " " + refreshToken)
 
 			// 如果需要刷新双Token时，返回双Token
-			ctx.JSON(200, gin.H{
-				"data":          "Token Refresh Success",
-				"access_token":  accessToken,
-				"refresh_token": refreshToken,
+			ctx.JSON(http.StatusOK, gin.H{
+				"data":  "Token Refresh Success",
+				"token": accessToken + " " + refreshToken,
 			})
 		}
+		ctx.JSON(http.StatusOK, gin.H{
+			"data":  "Token not refresh",
+			"token": parts[1] + " " + parts[2],
+		})
 		ctx.Set("id", Clams.User.Id)
 		ctx.Next()
 	}

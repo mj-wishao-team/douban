@@ -6,6 +6,24 @@ import (
 	"time"
 )
 
+//修改头像
+func ChangeAvatar(url string, id int64) error {
+	sqlStr := "UPDATE user SET avatar = ? WHERE id = ?"
+	stmt, err := DB.Prepare(sqlStr)
+	defer stmt.Close()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(url, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 //修改常驻地
 func ChangeHabitat(habitat string, id int64) error {
 	sqlStr := "UPDATE user SET habitat = ? WHERE id = ?"
@@ -22,7 +40,6 @@ func ChangeHabitat(habitat string, id int64) error {
 	}
 
 	return nil
-
 }
 
 //修改家乡公开
