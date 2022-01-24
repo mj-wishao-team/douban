@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"douban/tool"
+	"fmt"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"mime/multipart"
 	"net/http"
@@ -18,15 +19,16 @@ func UploadAvatar(file multipart.File, filename string) error {
 	// COS_REGION 可以在控制台查看，https://console.cloud.tencent.com/cos5/bucket, 关于地域的详情见 https://cloud.tencent.com/document/product/436/6224
 	u, _ := url.Parse(cosCfg.AvatarUrl)
 	b := &cos.BaseURL{BucketURL: u}
-	c := cos.NewClient(b, &http.Client{
+	client := cos.NewClient(b, &http.Client{
 		Transport: &cos.AuthorizationTransport{
 			SecretID:  cosCfg.SecretId,  // 替换为用户的 SecretId，请登录访问管理控制台进行查看和管理，https://console.cloud.tencent.com/cam/capi
 			SecretKey: cosCfg.SecretKey, // 替换为用户的 SecretKey，请登录访问管理控制台进行查看和管理，https://console.cloud.tencent.com/cam/capi
 		},
 	})
-	//上传文件流
-	_, err := c.Object.Put(context.Background(), filename, file, nil)
+
+	_, err := client.Object.Put(context.Background(), filename, file, nil)
 	if err != nil {
+		fmt.Println("llllll")
 		return err
 	}
 	return nil
