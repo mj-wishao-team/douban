@@ -2,7 +2,7 @@
   margin: 0;
   padding: 0;
 }
-
+/* 头部 */
 .nav {
   height: 70px;
   width: 100%;
@@ -17,13 +17,13 @@
   padding: 22px 0 20px;
   zoom: 1;
 }
-
+/* 主体部分 */
 .login {
   width: 1002px;
   margin: 84px auto 0;
   position: relative;
 }
-
+/* 主体左部 */
 .login-left {
   position: relative;
   display: inline-block;
@@ -79,7 +79,7 @@
 .download-picture:hover {
   cursor: pointer;
 }
-
+/* 主体右部 */
 .login-right {
   height: 450px;
   width: 340px;
@@ -435,6 +435,23 @@
 .error-message2 {
   width: 280px;
   height: 36px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.error-message2-text {
+  position: absolute;
+  top: 8px;
+  height: 18px;
+  padding-left: 16px;
+  color: #fe2617;
+  font-size: 14px;
+  line-height: 20px;
+  background-image: url(../../picture/login/error.svg);
+  background-repeat: no-repeat;
+  background-size: 14px;
+  background-position: 0 3px;
+  display: none;
 }
 
 .login-account {
@@ -562,7 +579,7 @@
   text-decoration: none;
   color: #41ac52;
 }
-
+/* 更换电话号国际区号部分 */
 .change-password-way {
   color: #41ac52;
   font-size: 13px;
@@ -660,7 +677,7 @@
   content: "\2714\FE0E";
   margin-left: 10px;
 }
-
+/* 透明白色遮罩层 */
 .mask-layer {
   background: #fff;
   position: absolute;
@@ -671,11 +688,88 @@
   top: 0;
   opacity: 0.7;
 }
-
+/* 滑动拼图验证码 */
 #mpanel4 {
   position: absolute;
   top: 34%;
   left: 36%;
   display: none;
   z-index: 90;
+}
+/* 短信登录，判断为新用户的话注册会弹出来的部分 */
+.welcomeRegister {
+  height: 700px;
+  width: 640px;
+  border-radius: 4px;
+  border: 10px solid rgba(200,200,200,0.4);
+  position: absolute;
+  top: 10%;
+  left: 30%;
+  background-color: #fff;
+  padding: 20px;
+  z-index: 999;
+  display: none;
+}
+
+.welcomeRegister-cancel {
+  position: absolute;
+  right: 10px;
+  top: 5px;
+  color: grey;
+  cursor: pointer;
+}
+
+.welcomeRegister-cancel:hover {
+  color: brown;
+}
+
+.welcomeRegister h1 {
+  display: inline-block;
+  height: 60px;
+}
+
+.content2 {
+  line-height: 20px;
+  font-size: 13px;
+  width: 600px;
+  height: 360px;
+  overflow-y: auto;
+  margin: 10px auto;
+}
+
+.content2 h4 {
+  margin-top: 10px;
+}
+
+.content2 .b {
+  font-weight: bold;
+}
+
+.content2 ul {
+  list-style: none;
+}
+
+.content-center {
+  text-align: center;
+}
+
+.content-right {
+  text-align: right;
+}
+
+#register-button {
+  display: block;
+  margin: 10px auto;
+  width: 100px;
+  height: 36px;
+  font-weight: 600;
+  font-size: 15px;
+  color: #fff;
+  line-height: 36px;
+  text-align: center;
+  outline: 0;
+  cursor: pointer;
+  background-color: #41ac52;
+  border-radius: 3px;
+  text-decoration: none;
 }

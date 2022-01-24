@@ -95,7 +95,7 @@ for(let i = 0; i < globalPhoneListLis.length; i++){  // 为所有li加上一个�
     }
 }
 
-// 检验验证码部分
+// 点击发送验证码的部分
 const reg = /^1[0-9]{10}$/
 let phoneNumber = document.querySelector('.phone-numbers-input')
 const errorMessage1Text = document.querySelector('#error-message1-text')
@@ -104,10 +104,9 @@ document.querySelector('#get-SMS-verification-code')['onclick']=x=>{
     if (phoneArea.innerHTML != '+86' ) {
         alert('目前没法支持海外手机号')
     } else if ( reg.test(phoneNumber.value) == false ) {
+        errorMessage1Text.innerHTML = '请正确填写手机号';
         errorMessage1Text.style.display = 'block';
-        setTimeout(() => {
-            errorMessage1Text.style.display = 'none';
-        },5000)
+        setTimeout(() => {errorMessage1Text.style.display = 'none'},5000)
     } else { //符合1开头的11位数字（整的弱校验），开始验证码
         mpanel4.style.display = 'block';
         maskLayer.className = 'mask-layer';
@@ -166,39 +165,162 @@ function countdown() {
         countdownDiv.style.display = 'none';
     }, 60000);
 };
-// 验证码完成之后要执行的东西
+// 拼图验证码完成之后要执行的东西
 function smsVerifiyThen(){
-    countdown()
-
+    countdown(); // 先是发送验证码的倒计时
+    smsLogin1() // 然后开始调用发送短信的函数
 }
 
-// // 密码登录
-// const accountInput = document.querySelector('.account-input');
-// const passwordInput = document.querySelector('.password-input');
-// const loginButton2 = document.querySelector('.login-button2');
-// loginButton2.onclick = () => {
-//     (async () => {
-//         let message2 = new FormData();
-//         message2.append('loginAccount', `${accountInput.value}`);
-//         message2.append('password', `${passwordInput.value}`);
-//         let result = await fetch('http://127.0.0.1:4523/mock/576903/api/user/login/pw', {
-//             method: 'POST',
-//             body: message2,
-//         });
-//         let output = await result.text()
-//         console.log(output);
-//     })()     
-// }
+// 此处之后写一个弹出错误提示函数降低代码重复
 
-// // 短信注册
-// const phoneNumbersInput = document.querySelector('.phone-numbers-input');
-// getSmsVerificationCode.onclick = () => {
-//     // 先第一次发短信请求验证码
-//     (async () => {
-//         let message1 = new FormData();
-//         message1.append('phone', `${phoneNumbersInput.value}`)
-//         let result = await fetch('http://127.0.0.1:4523/mock/576903/api/user/register', {
-//             method: 'POST'
-//         })
-//     })()
-// }
+// 此处之后写一个fetch模板函数降低代码重复
+
+// 密码登录
+const accountInput = document.querySelector('.account-input');
+const passwordInput = document.querySelector('.password-input');
+const loginButton2 = document.querySelector('.login-button2');
+const errorMessage2Text = document.querySelector('.error-message2-text');
+loginButton2.onclick = () => {
+    (async () => {
+        let message = new FormData();
+        message.append('loginAccount', `${accountInput.value}`);
+        message.append('password', `${passwordInput.value}`);
+        let result = await fetch('http://106.55.225.88:9090/api/user/login/pw', {
+            method: 'POST',
+            body: message,
+        });
+        let jsonObj = await result.json();
+        console.log(jsonObj.data);       // 此处是控制台输出状态供调试
+
+        if(jsonObj.status == 'ture'){
+            localStorage.setItem('access_token', jsonObj.access_token);   //把jwt存在本地
+            localStorage.setItem('refresh_token', jsonObj.refresh_token);
+            alert('成功登录');
+        }else if(jsonObj.data == '账号或密码错误'){
+            errorMessage2Text.innerHTML = '用户名或密码错误'
+            errorMessage2Text.style.display = 'block' 
+            setTimeout(() =>{errorMessage2Text.style.display = 'none'},5000)
+        }else if(jsonObj.data == '请输入密码'){
+            errorMessage2Text.innerHTML = '请输入密码';
+            errorMessage2Text.style.display = 'block';
+            setTimeout(() =>{errorMessage2Text.style.display = 'none'},5000)
+        }else if(jsonObj.data == '请输入注册时用的邮箱或者手机号'){
+            errorMessage2Text.innerHTML = '请填写账号';
+            errorMessage2Text.style.display = 'block';
+            setTimeout(() =>{errorMessage2Text.style.display = 'none'},5000)
+        }else{
+            console.log('服务器繁忙，请稍后再试');
+            alert('服务器繁忙，请稍后再试');
+        }
+    })()     
+}
+
+// 短信登录与注册
+const phoneNumbersInput = document.querySelector('.phone-numbers-input');
+const smsVerificationCodeInput = document.querySelector('.SMS-verification-code-input');
+const welcomeRegister = document.querySelector('.welcomeRegister');
+const loginButton1 = document.querySelector('.login-button1');
+// 第一次，发送手机号请求验证码的函数
+async function smsLogin1() {
+    let message = new FormData();
+    message.append('phone', `${phoneNumbersInput.value}`)
+    let result = await fetch('http://106.55.225.88:9090/api/verify/sms', {
+        method: 'POST',
+        body: message
+    })
+    let jsonObj = await result.json();
+    console.log(jsonObj.data);// 此处是控制台输出状态供调试
+    console.log('info内容为' + jsonObj.info);// 此处是控制台输出状态供调试
+
+    if(jsonObj.data == '电话号码不能为空'){
+        errorMessage1Text.innerHTML = '电话号码不能为空';
+        errorMessage1Text.style.display = 'block';
+        setTimeout(() =>{errorMessage1Text.style.display = 'none'},5000)
+    }else if(jsonObj.data == '手机号格式错误'){
+        errorMessage1Text.innerHTML = '请正确填写手机号';
+        errorMessage1Text.style.display = 'block';
+        setTimeout(() =>{errorMessage1Text.style.display = 'none'},5000)
+    }else if(jsonObj.info == '服务器出错'){
+        console.log('服务器繁忙，请稍后再试');
+        alert('服务器繁忙，请稍后再试');
+    }
+
+    // 按下按钮，如果后端返回短信发送成功,调用第二次发送的函数
+    loginButton1.onclick = () => {
+        if(jsonObj.info == '短信发送成功' && smsVerificationCodeInput.value != ''){
+            smsLongin2();
+            loginButton1.innerHTML = '登录中...';
+        }    
+    }
+}
+
+// 第二次，请求验证码成功后，调用此函数与另一个接口发送验证码与手机号
+async function smsLongin2(){                   
+    let message = new FormData();
+    message.append('phone', `${phoneNumbersInput.value}`);
+    message.append('verify_code', `${smsVerificationCodeInput.value}`)
+    let result = await fetch('http://106.55.225.88:9090/api/user/login/sms', {
+        method: 'POST',
+            body: message,
+        })
+    let jsonObj = await result.json();
+    console.log(jsonObj.data);              // 此处是控制台输出状态供调试
+    console.log('info内容为' + jsonObj.info);// 此处是控制台输出状态供调试
+    if(jsonObj.info == '新用户'){
+        smsRegister();             // 判断是新用户，调用下面的函数来注册
+    }else if(jsonObj.status == 'ture'){
+        localStorage.setItem('access_token', jsonObj.access_token);   //成功登录,把jwt存在本地
+        localStorage.setItem('refresh_token', jsonObj.refresh_token);
+        alert('成功登录');
+        loginButton1.innerHTML = '登录';
+    }else if(jsonObj.data == '未发送验证码'){
+        errorMessage1Text.innerHTML = '验证码不能为空';
+        errorMessage1Text.style.display = 'block';
+        setTimeout(() =>{errorMessage1Text.style.display = 'none'},5000)
+        loginButton1.innerHTML = '登录';
+    }else if(jsonObj.data == '电话号码不能为空'){
+        errorMessage1Text.innerHTML = '电话号码不能为空';
+        errorMessage1Text.style.display = 'block';
+        setTimeout(() =>{errorMessage1Text.style.display = 'none'},5000)
+        loginButton1.innerHTML = '登录';
+    }else if(jsonObj.data == '手机号格式错误'){
+        errorMessage1Text.innerHTML = '请正确填写手机号';
+        errorMessage1Text.style.display = 'block';
+        setTimeout(() =>{errorMessage1Text.style.display = 'none'},5000)
+        loginButton1.innerHTML = '登录';
+    }else if(jsonObj.data == '验证码错误或者过期'){
+        errorMessage1Text.innerHTML = '验证码错误或者过期';
+        errorMessage1Text.style.display = 'block';
+        setTimeout(() =>{errorMessage1Text.style.display = 'none'},5000)
+        loginButton1.innerHTML = '登录';
+    }else if(jsonObj.data == '验证码不能为空'){
+        errorMessage1Text.innerHTML = '验证码不能为空';
+        errorMessage1Text.style.display = 'block';
+        setTimeout(() =>{errorMessage1Text.style.display = 'none'},5000)
+        loginButton1.innerHTML = '登录';
+    }
+    // else {
+    //     console.log('服务器繁忙，请稍后再试');
+    //     alert('服务器繁忙，请稍后再试');
+    //     smsVerificationCodeInput.innerHTML = '登录';
+    // }
+            
+}
+// 第三次，如果是第一次使用的新用户，执行这个函数，把手机号存储到本地，并弹出注册协议窗口
+function smsRegister(){
+    localStorage.setItem('registerPhoneNumber', `${phoneNumbersInput.value}`)
+    maskLayer.className = 'mask-layer';
+    welcomeRegister.style.display = 'block';
+}
+
+// 新用户短信注册弹出的注册协议窗口部分
+document.querySelector('.welcomeRegister-cancel')['onclick']=x=>{
+    maskLayer.className = '';
+    welcomeRegister.style.display = 'none';
+}
+document.querySelector('#register-button')['onclick']=x=>{
+    maskLayer.className = '';
+    welcomeRegister.style.display = 'none';
+    window.location.href="../loginFirst/loginFirst.html"
+    smsVerificationCodeInput.innerHTML = '登录';
+}
