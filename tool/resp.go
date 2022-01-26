@@ -20,7 +20,7 @@ func RespErrorWithData(ctx *gin.Context, data interface{}) {
 
 func RespSuccessfulWithData(ctx *gin.Context, data interface{}) {
 	ctx.JSON(http.StatusOK, gin.H{
-		"status": "ture",
+		"status": "true",
 		"data":   data,
 	})
 }
