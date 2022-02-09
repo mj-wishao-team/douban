@@ -1,0 +1,9 @@
+.change-avatar input {
+    display: none;
+}
+
+.change-avatar label {
+    color: #3577a9;
+    font-size: 13px;
+    cursor: pointer;
+}

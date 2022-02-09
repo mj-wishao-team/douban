@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账号设置</title>
+    <link rel="stylesheet" href="accountSetting.css">
+</head>
+
+<body>
+    <div class="head">
+        <div class="nav">
+            <div class="nav-left">
+                <a>豆瓣</a><a>读书</a><a>电影</a><a>音乐</a><a>同城</a>
+                <a>小组</a><a>阅读</a><a>FM</a><a>时间</a><a>豆品</a>
+            </div>
+            <div class="nav-right">
+                <a>下载豆瓣客户端</a><span>提醒</span><a>豆邮</a><span>xxx的账号</span>
+            </div>
+        </div>
+        <div class="logo">
+            <a href=""><img src="../../picture/login/douban_logo.png" alt=""></a>
+        </div>
+    </div>
+    <div class="main">
+        <div class="main-left">
+            <div class="switch">
+                <div class="basic-setup">基本设置</div>
+                <div class="other-setup">第三方应用授权</div>
+            </div>
+            <div class="basic">
+                <div class="change-avatar">
+                    <span>头像：</span>
+                    <label for="upload">点击上传头像</label><input id="upload" type="file" accept="image/*">
+                </div>
+                <div class="change-uname">
+                    <span>昵称：</span>
+                    <div><input type="text"></div>
+                </div>
+                <div class="change-uname-then">昵称30天内只能修改一次</div>
+                <div class="change-password">
+                    <span>密码：</span><a href="">修改密码</a>
+                </div>
+                <div class="change-domain-name">
+                    <span>域名：</span>
+                    <input type="text">
+                </div>
+                <div class="change-domain-name-then">
+                    最多15个字符，字母开头，设置后不能修改。
+                </div>
+                <div class="change-residence">
+                    <span>常居地：</span>
+                    <input type="text" placeholder="设置我的居住地">
+                </div>
+                <div class="change-hometown">
+                    <span>家乡：</span>
+                    <input type="text" placeholder="设置我的家乡">
+                </div>
+                <div class="change-hometown-then">
+                    <div><input type="radio" name="hometown">公开可见</div>
+                    <div><input type="radio" name="hometown">仅同乡可见</div>
+                </div>
+                <div class="change-birthday">
+                    <span>生日：</span>
+                    <input type="text" placeholder="设置我的生日">
+                </div>
+                <div class="change-birthday-then">
+                    <div><input type="radio" name='birthday'>公开可见</div>
+                    <div><input type="radio" name='birthday'>保密</div>
+                </div>
+                <div class="change-email">
+                    <span>邮箱：</span>
+                    <a href="./changeEmail/changeEmail.html">绑定</a>
+                </div>
+                <div class="change-phone">
+                    <span>手机号：</span>
+                    <span></span>
+                </div>
+                <div class="change-others">
+                    <span>第三方：</span>
+                    <div><img src="../../picture/login/wechat.svg" alt=""><a href="">绑定</a></div>
+                    <div><img src="../../picture/login/weibo.svg" alt=""><a href="">绑定</a></div>
+                </div>
+                <div class="button">更新设置</div>
+            </div>
+            <div class="others">
+                <p>第三方开发的应用（或网站）需要操作你的数据时，需要得到你的授权才能访问。你可以随时取消这些授权。</p>
+                <p>若你曾授权用豆瓣帐号登录合作网站，取消授权并不会导致该网站上的帐号被删除。 </p>
+            </div>
+        </div>
+        <div class="main-right">
+            <div class="find-account-mainpage"></div>
+            <div class="my-domain-name"></div>
+            <div class="delete-account"></div>
+        </div>
+    </div>
+    <script src='accountSetting.js'></script>
+</body>
+
+</html>
