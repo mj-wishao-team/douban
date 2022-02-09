@@ -204,6 +204,7 @@ loginButton2.onclick = () => {
         });
         let jsonObj = await result.json();
         console.log(jsonObj.data); // 此处是控制台输出状态供调试
+        console.log(jsonObj);
 
         if (jsonObj.status == 'ture') {
             localStorage.setItem('access_token', jsonObj.access_token); //把jwt存在本地

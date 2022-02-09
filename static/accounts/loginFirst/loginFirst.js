@@ -41,10 +41,12 @@ async function Register() {
     let jsonObj = await result.json();
     console.log(jsonObj); // 控制台输出供调试
     if (jsonObj.status == 'ture') {
-        alert('注册成功')
-        console.log(jsonObj.data);
+        alert('注册成功，5秒后跳转到登录页面...')
+        console.log(jsonObj.data); // 控制台输出供调试
+        setTimeout(() => {
+            window.location.href = "../login/login.html"
+        }, 5000)
     } else {
         alert(`注册失败，${jsonObj.data}`)
     }
-
 }
