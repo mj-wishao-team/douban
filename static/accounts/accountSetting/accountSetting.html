@@ -13,22 +13,43 @@
     <div class="head">
         <div class="nav">
             <div class="nav-left">
-                <a>豆瓣</a><a>读书</a><a>电影</a><a>音乐</a><a>同城</a>
-                <a>小组</a><a>阅读</a><a>FM</a><a>时间</a><a>豆品</a>
+                <a href="">豆瓣</a><a href="">读书</a><span class="movie">电影</span><a href="">音乐</a><a href="">同城</a>
+                <a href="">小组</a><a href="">阅读</a><a href="">FM</a><a href="">时间</a><a href="">豆品</a>
             </div>
             <div class="nav-right">
-                <a>下载豆瓣客户端</a><span>提醒</span><a>豆邮</a><span>xxx的账号</span>
+                <span class="download">下载豆瓣客户端
+                    <div class="download-App">
+                        <img src="../../../picture/downloadApp/logo.png" alt="">
+                        <p>豆瓣</p>
+                        <img src="../../../picture/downloadApp/QRcode.png" alt="">
+                        <div><a href="">iPhone</a> · <a href="">Android</a></div>
+                    </div>
+                </span>
+                <span>提醒</span>
+                <a href="">豆邮</a>
+                <span class="account">xxx的账号 <p class="triangle"></p>
+                    <div id="settings">
+                        <div id="my-page">个人主页</div>
+                        <div id="none1">我的订单</div>
+                        <div id="none2">我的钱包</div>
+                        <div id="account-setting">账号管理</div>
+                        <div id="logout">退出</div>
+                    </div>
+                </span>
+                <div class="placeholder"></div>
             </div>
         </div>
         <div class="logo">
-            <a href=""><img src="../../picture/login/douban_logo.png" alt=""></a>
+            <div>
+                <a href="#"><img src="../../picture/login/douban_logo.png" width="142" alt="豆瓣"></a>
+            </div>
         </div>
     </div>
     <div class="main">
         <div class="main-left">
             <div class="switch">
-                <div class="basic-setup">基本设置</div>
-                <div class="other-setup">第三方应用授权</div>
+                <div id="other-setup" class="unselected">第三方应用授权</div>
+                <div id="basic-setup" class="selected">基本设置</div>
             </div>
             <div class="basic">
                 <div class="change-avatar">
@@ -37,46 +58,57 @@
                 </div>
                 <div class="change-uname">
                     <span>昵称：</span>
-                    <div><input type="text"></div>
+                    <div class="inline-block">
+                        <div><input type="text"></div>
+                        <div class="change-uname-then">昵称30天内只能修改一次</div>
+                    </div>
                 </div>
-                <div class="change-uname-then">昵称30天内只能修改一次</div>
                 <div class="change-password">
                     <span>密码：</span><a href="">修改密码</a>
                 </div>
                 <div class="change-domain-name">
                     <span>域名：</span>
-                    <input type="text">
-                </div>
-                <div class="change-domain-name-then">
-                    最多15个字符，字母开头，设置后不能修改。
+                    <div class="inline-block">
+                        <div><input type="text"></div>
+                        <div class="change-domain-name-then">
+                            最多15个字符，字母开头，设置后不能修改。
+                        </div>
+                    </div>
                 </div>
                 <div class="change-residence">
                     <span>常居地：</span>
-                    <input type="text" placeholder="设置我的居住地">
+                    <div><input type="text" placeholder="设置我的居住地"></div>
                 </div>
                 <div class="change-hometown">
                     <span>家乡：</span>
-                    <input type="text" placeholder="设置我的家乡">
-                </div>
-                <div class="change-hometown-then">
-                    <div><input type="radio" name="hometown">公开可见</div>
-                    <div><input type="radio" name="hometown">仅同乡可见</div>
+                    <div class="inline-block">
+                        <div class="change-hometown-input"><input type="text" placeholder="设置我的家乡"></div>
+                        <div class="change-hometown-then">
+                            <div><input type="radio" name="hometown">公开可见</div>
+                            <div><input type="radio" name="hometown">仅同乡可见</div>
+                        </div>
+                    </div>
                 </div>
                 <div class="change-birthday">
                     <span>生日：</span>
-                    <input type="text" placeholder="设置我的生日">
-                </div>
-                <div class="change-birthday-then">
-                    <div><input type="radio" name='birthday'>公开可见</div>
-                    <div><input type="radio" name='birthday'>保密</div>
+                    <div class="inline-block">
+                        <div class="change-birthday-input">设置我的生日</div>
+                        <div class="change-birthday-then">
+                            <div><input type="radio" name='birthday'>公开可见</div>
+                            <div><input type="radio" name='birthday'>保密</div>
+                        </div>
+                    </div>
+                    <div class="birthday-select"></div>
                 </div>
                 <div class="change-email">
                     <span>邮箱：</span>
+                    <span></span>
                     <a href="./changeEmail/changeEmail.html">绑定</a>
                 </div>
                 <div class="change-phone">
                     <span>手机号：</span>
                     <span></span>
+                    <a href="">解绑</a>
                 </div>
                 <div class="change-others">
                     <span>第三方：</span>
@@ -91,9 +123,17 @@
             </div>
         </div>
         <div class="main-right">
-            <div class="find-account-mainpage"></div>
-            <div class="my-domain-name"></div>
-            <div class="delete-account"></div>
+            <div class="find-account-mainpage">
+                <h2>寻找“个人介绍”或“邮件提醒”设置？</h2>
+                <p>去我的豆瓣，个人介绍可以直接编辑，邮件提醒位于名号下方的“设置”里
+                </p>
+            </div>
+            <div class="my-domain-name">
+                <h2>我的域名：</h2>
+                <p>个性化域名将用作个人主页网址的一部分，最多15个数字或字母，字母开头，一经设定则不可更改。</p>
+                <p>如果现在你不是非常确定，可以先留空，以后再说。</p>
+            </div>
+            <div class="delete-account">> <a href="">删除帐号</a></div>
         </div>
     </div>
     <script src='accountSetting.js'></script>

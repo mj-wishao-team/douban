@@ -3,9 +3,16 @@
     margin: 0;
 }
 
-.header {
+.head {
     height: 100px;
     width: 100%;
+}
+
+@media screen and (max-width:960px) {
+    .head {
+        height: 100px;
+        width: 960px;
+    }
 }
 
 .nav {
@@ -147,24 +154,24 @@
 }
 
 .main {
-    width: 1040px;
+    width: 1140px;
     margin: 0 auto;
 }
 
-.left {
+.main-left {
     display: inline-block;
     padding: 20px 15px;
-    width: 800px;
+    width: 720px;
     vertical-align: top;
 }
 
-.left h2 {
+.main-left h2 {
     display: block;
     margin-bottom: 20px;
     font-weight: 400;
 }
 
-.left p {
+.main-left p {
     margin-bottom: 14px;
     color: #9b9b9b;
 }
@@ -312,15 +319,15 @@
     text-decoration: none;
 }
 
-.right {
+.main-right {
     display: inline-block;
-    width: 200px;
+    width: 300px;
     height: 60px;
     padding: 20px 0;
     vertical-align: top;
 }
 
-.right a {
+.main-right a {
     text-decoration: none;
     color: #3c76a9;
 }

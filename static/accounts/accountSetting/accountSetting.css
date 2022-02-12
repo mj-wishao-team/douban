@@ -1,9 +1,327 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+.head {
+    height: 100px;
+    width: 100%;
+}
+
+@media screen and (max-width:960px) {
+    .head {
+        height: 100px;
+        width: 960px;
+    }
+}
+
+.nav {
+    background-color: #545652;
+    height: 30px;
+    width: 100%;
+    position: relative;
+    font-size: x-small;
+    line-height: 30px;
+}
+
+.nav-left {
+    position: absolute;
+    left: 0;
+}
+
+.nav-left a,
+.movie {
+    padding-left: 30px;
+    text-decoration: none;
+    color: #d5d5d5;
+}
+
+.nav-right a,
+.nav-right span {
+    padding-right: 30px;
+    text-decoration: none;
+    color: #d5d5d5;
+    cursor: pointer;
+}
+
+.nav-right {
+    position: absolute;
+    right: 0;
+}
+
+.nav-left a:hover,
+.movie:hover,
+.nav-right a:hover,
+.nav-right span:hover {
+    color: #fff;
+}
+
+.movie {
+    cursor: pointer;
+}
+
+.download {
+    position: relative;
+}
+
+.download:hover .download-App {
+    display: flex;
+}
+
+.download-App {
+    display: none;
+    background-color: #fff;
+    position: absolute;
+    left: -88px;
+    width: 260px;
+    height: 460px;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    border: 1px solid rgb(216, 216, 216);
+}
+
+.download-App p:first-of-type {
+    font-weight: 400;
+    font-size: x-large;
+    color: black;
+}
+
+.download-App img:first-of-type {
+    height: 100px;
+}
+
+.download-App img:last-of-type {
+    height: 160px;
+}
+
+.download-App div a {
+    color: #3f76bb;
+    padding-left: 14px;
+}
+
+.triangle {
+    display: inline-block;
+    border-left: 4px solid transparent;
+    border-top: 4px solid #d5d5d5;
+    border-right: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    height: 0px;
+    width: 0px;
+}
+
+.account {
+    position: relative;
+}
+
+.placeholder {
+    width: 40px;
+}
+
+#settings {
+    display: none;
+    position: absolute;
+    right: 20px;
+    width: 100px;
+    height: 180px;
+    color: black;
+    border: 1px solid rgb(216, 216, 216);
+    background-color: #ffffff;
+}
+
+#settings div {
+    width: 100%;
+    height: 36px;
+    text-align: center;
+}
+
+#settings div:hover {
+    background-color: #f6f6f6;
+}
+
+.logo {
+    height: 70px;
+    width: 100%;
+    background-color: #edf4ed;
+}
+
+.logo div {
+    width: 1040px;
+    height: 70px;
+    margin: 0 auto;
+    position: relative;
+    top: 30%;
+}
+
+.main {
+    width: 1140px;
+    margin: 0 auto;
+}
+
+.main-right {
+    display: inline-block;
+    width: 300px;
+    height: 60px;
+    padding: 20px 0;
+    vertical-align: top;
+}
+
+.main-left {
+    display: inline-block;
+    padding: 20px 15px;
+    width: 720px;
+    vertical-align: top;
+    font-size: small;
+}
+
+.switch {
+    height: 30px;
+    width: 600px;
+    background-color: #fef6ef;
+    border-bottom: #f7eee5 1px solid;
+}
+
+#basic-setup {
+    float: right;
+    margin-top: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+#other-setup {
+    float: right;
+    margin-top: 4px;
+    margin-right: 16px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.selected {
+    color: black;
+    background: white;
+}
+
+.unselected {
+    color: #3e76a8;
+    background-color: #fef6ef;
+}
+
+.basic {
+    display: flex;
+    height: 1000px;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.change-avatar label,
+.change-password a,
+.change-email a,
+.change-phone a,
+.change-others a {
+    color: #3e76a8;
+    cursor: pointer;
+    text-decoration: none;
+}
+
 .change-avatar input {
     display: none;
 }
 
-.change-avatar label {
-    color: #3577a9;
-    font-size: 13px;
+.inline-block,
+.change-residence div,
+.change-hometown-then div,
+.change-birthday-then div,
+.change-others div {
+    display: inline-block;
+    vertical-align: top;
+    margin-top: -6px;
+}
+
+.change-uname div div:first-of-type,
+.change-domain-name div div:first-of-type,
+.change-hometown-input {
+    width: 280px;
+    height: 28px;
+    padding-left: 8px;
+    border-radius: 3px;
+    border: 1px solid #d5d5d5;
+    margin-bottom: 20px;
+}
+
+.change-residence div {
+    width: 266px;
+    height: 28px;
+    border-radius: 3px;
+    border: 1px solid #d5d5d5;
+    padding-left: 8px;
+}
+
+.change-uname input,
+.change-domain-name input,
+.change-residence input,
+.change-hometown-input input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+}
+
+.change-birthday-input {
+    width: 280px;
+    height: 28px;
+    border-radius: 3px;
+    border: 1px solid #d5d5d5;
+    color: gray;
+    padding-left: 8px;
+    padding-top: 8px;
+    margin-bottom: 20px;
+}
+
+.change-hometown-then div,
+.change-birthday-then div,
+.change-others div {
+    padding-right: 30px;
+}
+
+.button {
+    width: 120px;
+    height: 40px;
+    font-weight: 600;
+    font-size: 15px;
+    color: #fff;
+    line-height: 38px;
+    text-align: center;
+    outline: 0;
     cursor: pointer;
+    background-color: #41ac52;
+    border-radius: 3px;
+    text-decoration: none;
+}
+
+.others {
+    display: none;
+    padding-top: 20px;
+    width: 600px;
+}
+
+.find-account-mainpage h2,
+.my-domain-name h2 {
+    font-size: 15px;
+    color: #072;
+    margin: 0 0 12px;
+    line-height: 150%;
+}
+
+.find-account-mainpage p,
+.my-domain-name p {
+    font-size: 13px;
+    margin: 0 0 12px;
+    color: #666666;
+}
+
+.delete-account a {
+    font-size: 13px;
+    color: #3e76a8;
+    cursor: pointer;
+    text-decoration: none;
 }
