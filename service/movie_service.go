@@ -27,18 +27,6 @@ func JudgeMovie(Mid int64) (bool, error) {
 	return true, nil
 }
 
-//获取短评
-func GetShortCommentSlice(mid int64) ([]model.ShortComment, error) {
-	commentSlice, err := dao.QueryShortCommentByMid(mid)
-	return commentSlice, err
-}
-
-//获取影评
-func GetLargeCommentSlice(mid int64) ([]model.LargeComment, error) {
-	commentSlice, err := dao.QueryLargeCommentByMid(mid)
-	return commentSlice, err
-}
-
 //影片评价
 func ChangeMovieScoreById(id int64, star int) error {
 

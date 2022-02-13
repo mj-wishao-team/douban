@@ -19,6 +19,20 @@ func (C *CommentController) Router(engine *gin.Engine) {
 	engine.POST("api/movie/comment/put_large", JWTAuthMiddleware(), putMovieLargeComment)
 	engine.GET("api/movie/comment/get_short", JWTAuthMiddleware(), getShortComment)
 	engine.GET("api/movie/comment/get_large", JWTAuthMiddleware(), getLargeComment)
+	engine.GET("api/movie/comment/get_large", JWTAuthMiddleware(), getLargeComment)
+	engine.GET("api/people/reviews", JWTAuthMiddleware(), GetSelfReviews)
+}
+
+//获取自己的影评
+func GetSelfReviews(ctx *gin.Context) {
+	uid := ctx.MustGet("id").(int64)
+	Comment, err := service.GetLargeCommentByUid(uid)
+	if err != nil {
+		tool.RespErrorWithData(ctx, "获取评论失败")
+		fmt.Println("GetSelfReviews_GetLargeCommentByUid is ERR", err)
+		return
+	}
+	tool.RespSuccessfulWithData(ctx, Comment)
 }
 
 //发表短评
@@ -57,6 +71,12 @@ func putMovieShortComment(ctx *gin.Context) {
 	}
 
 	tool.RespSuccessfulWithData(ctx, "评论成功")
+
+	err = service.ChangeMovieScoreById(movieId, star)
+	if err != nil {
+		fmt.Println("ChangeMovieScore Is err", err)
+		return
+	}
 }
 
 //获取短评
