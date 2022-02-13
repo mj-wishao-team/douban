@@ -72,6 +72,13 @@ func JudgeAndQueryUserByUserID(Id int64) (model.User, bool, error) {
 	}
 
 	return User, true, nil
+
+}
+
+//根据Id查询用户
+func GetUserById(id int64) (model.User, error) {
+	User, err := dao.QueryUserByID(id)
+	return User, err
 }
 
 //判断电话号码是否注册

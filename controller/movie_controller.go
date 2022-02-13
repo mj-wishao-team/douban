@@ -13,7 +13,6 @@ type MovieController struct {
 
 func (M *MovieController) Router(engine *gin.Engine) {
 	engine.GET("api/movie/subject/:id", getMovie)
-	engine.POST("api/movie/comment", JWTAuthMiddleware(), putMovieComment)
 }
 
 //获取电影信息
