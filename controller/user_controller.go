@@ -34,7 +34,7 @@ func (u *UserController) Router(engine *gin.Engine) {
 	engine.PUT("/api/user/unbind_email", JWTAuthMiddleware(), unbindEmail)
 	engine.PUT("/api/user/change_habitat", JWTAuthMiddleware(), changeHabitat)
 	engine.PUT("/api/user/change_account", JWTAuthMiddleware(), changeAccount)
-	engine.PUT("/api/user/change_avatar", changeAvatar)
+	engine.PUT("/api/user/change_avatar", JWTAuthMiddleware(), changeAvatar)
 
 	engine.DELETE("/api/user/suicide", JWTAuthMiddleware(), suicideAccount)
 }
@@ -71,8 +71,7 @@ func accountManagement(ctx *gin.Context) {
 //修改头像
 func changeAvatar(ctx *gin.Context) {
 	file, header, err := ctx.Request.FormFile("avatar")
-	//Id := ctx.MustGet("id").(int64)
-	Id, _ := strconv.ParseInt(ctx.PostForm("id"), 10, 64)
+	Id := ctx.MustGet("id").(int64)
 
 	tool.CatchPanic(ctx, "changeAvatar")
 
@@ -96,12 +95,15 @@ func changeAvatar(ctx *gin.Context) {
 	}
 
 	fileFormat := tool.GetFileType(fileByte)
+
 	if fileFormat == "" {
 		tool.RespErrorWithData(ctx, "头像格式无效")
 		return
 	}
 
-	fileName := strconv.FormatInt(Id, 10) + "." + fileFormat
+	fileName := strconv.FormatInt(Id, 10) + "_avatar.png"
+
+	//上传头像
 	err = service.UploadAvatar(file, fileName)
 	if err != nil {
 		fmt.Println("UploadAvatarErr: ", err)
@@ -535,9 +537,10 @@ func login(ctx *gin.Context) {
 		}
 
 		ctx.JSON(http.StatusOK, gin.H{
-			"token":  accessToken + " " + refreshToken,
-			"status": "ture",
-			"data":   User.Id,
+			"access_token":  accessToken,
+			"refresh_token": refreshToken,
+			"status":        "ture",
+			"data":          User.Id,
 		})
 		fmt.Println(accessToken + " " + refreshToken)
 		return
@@ -635,10 +638,11 @@ func loginBySms(ctx *gin.Context) {
 		}
 
 		ctx.JSON(http.StatusOK, gin.H{
-			"token":  accessToken + " " + refreshToken,
-			"status": "ture",
-			"data":   User.Id,
-			"info":   "登录成功",
+			"access_token":  accessToken,
+			"refresh_token": refreshToken,
+			"status":        "ture",
+			"data":          User.Id,
+			"info":          "登录成功",
 		})
 		fmt.Println(accessToken + " " + refreshToken)
 	} else {

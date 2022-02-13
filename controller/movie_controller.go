@@ -17,7 +17,7 @@ func (M *MovieController) Router(engine *gin.Engine) {
 
 //获取电影信息
 func getMovie(ctx *gin.Context) {
-	Id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	Id, err := strconv.ParseInt(ctx.Query("id"), 10, 64)
 	if err != nil {
 		tool.RespErrorWithData(ctx, err)
 		fmt.Println("getMovie_ParseInt ERR is", err)
@@ -31,4 +31,10 @@ func getMovie(ctx *gin.Context) {
 		return
 	}
 	tool.RespSuccessfulWithData(ctx, movies)
+}
+
+//排行榜
+
+func getMovieLeaderboard(ctx *gin.Context) {
+
 }
