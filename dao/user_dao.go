@@ -210,6 +210,31 @@ func QueryUserByID(id int64) (model.User, error) {
 	return user, nil
 }
 
+//根据ID查询UserInfo信息
+func QueryUserInfoByID(id int64) (model.UserInfo, error) {
+	user := model.UserInfo{}
+
+	sqlStr := "SELECT id,username,email,phone,avatar,domain_name,habitat,hometown,birthday,statement,followers,followings FROM user WHERE id= ? "
+	Stmt, err := DB.Prepare(sqlStr)
+	defer Stmt.Close()
+
+	if err != nil {
+		return user, err
+	}
+
+	row := Stmt.QueryRow(id)
+	if row.Err() != nil {
+		return user, row.Err()
+	}
+
+	err = row.Scan(&user.Id, &user.Username, &user.Email, &user.Phone, &user.Avatar, &user.DomainName, &user.Habitat, &user.Username, &user.Birthday, &user.Statement, &user.Followers, &user.Followings)
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+
 //根据用户名查询
 func QueryByUserName(username string) (model.User, error) {
 	user := model.User{}

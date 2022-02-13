@@ -76,8 +76,8 @@ func JudgeAndQueryUserByUserID(Id int64) (model.User, bool, error) {
 }
 
 //根据Id查询用户
-func GetUserById(id int64) (model.User, error) {
-	User, err := dao.QueryUserByID(id)
+func GetUserById(id int64) (model.UserInfo, error) {
+	User, err := dao.QueryUserInfoByID(id)
 	return User, err
 }
 
