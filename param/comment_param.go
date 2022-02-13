@@ -4,7 +4,7 @@ import "douban/model"
 
 type ShortComment struct {
 	Id      int64
-	User    model.User
+	User    model.UserInfo
 	MId     int64
 	Comment string
 	Time    string
@@ -15,12 +15,13 @@ type ShortComment struct {
 
 type LargeComment struct {
 	Id      int64
-	User    model.User
+	User    model.UserInfo
+	Title   string
 	MId     int64
 	Comment string
 	Time    string
 	Likes   int64
-	unlikes int64
+	Unlikes int64
 	Report  int64
 	Star    int
 }

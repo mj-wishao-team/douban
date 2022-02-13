@@ -94,7 +94,9 @@ func getShortComment(ctx *gin.Context) {
 		newShortCommentSlice = append(newShortCommentSlice, shortCommentParam)
 	}
 
-	tool.RespSuccessfulWithData(ctx, newShortCommentSlice)
+	ctx.JSON(200, gin.H{
+		"short_comment": newShortCommentSlice,
+	})
 
 }
 
@@ -142,5 +144,42 @@ func putMovieLargeComment(ctx *gin.Context) {
 
 //获取影评
 func getLargeComment(ctx *gin.Context) {
+	Mid, err := strconv.ParseInt(ctx.Query("mid"), 10, 64)
+	if err != nil {
+		tool.RespErrorWithData(ctx, "解析失败")
+		return
+	}
+	commentSlice, err := service.GetLargeCommentSlice(Mid)
 
+	if err != nil {
+		tool.RespInternalError(ctx)
+		fmt.Println("getLargeComment_GetLargeCommentSlice Err is", err)
+		return
+	}
+
+	if commentSlice == nil {
+		commentSlice = []model.LargeComment{}
+	}
+
+	var newLargeCommentSlice []param.LargeComment
+
+	for _, commentModel := range commentSlice {
+		var largeCommentParam param.LargeComment
+		user, _ := service.GetUserById(commentModel.Uid)
+
+		largeCommentParam.Time = commentModel.Time.Format("2006-01-02 15:04:05")
+		largeCommentParam.Id = commentModel.Id
+		largeCommentParam.Comment = commentModel.Comment
+		largeCommentParam.Title = commentModel.Title
+		largeCommentParam.User = user
+		largeCommentParam.Likes = commentModel.Likes
+		largeCommentParam.Unlikes = commentModel.Unlikes
+		largeCommentParam.MId = commentModel.Mid
+
+		newLargeCommentSlice = append(newLargeCommentSlice, largeCommentParam)
+	}
+
+	ctx.JSON(200, gin.H{
+		"large_comment": newLargeCommentSlice,
+	})
 }

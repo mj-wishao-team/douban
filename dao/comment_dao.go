@@ -49,3 +49,31 @@ func QueryShortCommentByMid(mid int64) ([]model.ShortComment, error) {
 
 	return commentSlice, nil
 }
+
+//获取影评论
+func QueryLargeCommentByMid(mid int64) ([]model.LargeComment, error) {
+	var commentSlice []model.LargeComment
+
+	stmt, err := DB.Prepare(`SELECT id, mid, uid,title, comment, time,likes,unlike,star,report FROM large_comment WHERE mid= ?`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(mid)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var commentModel model.LargeComment
+		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Uid, &commentModel.Title, &commentModel.Comment, &commentModel.Time, &commentModel.Likes, &commentModel.Unlikes, &commentModel.Star, &commentModel.Report)
+		if err != nil {
+			return nil, err
+		}
+		commentSlice = append(commentSlice, commentModel)
+	}
+
+	return commentSlice, nil
+}
