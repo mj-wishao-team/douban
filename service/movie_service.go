@@ -27,6 +27,17 @@ func JudgeMovie(Mid int64) (bool, error) {
 	return true, nil
 }
 
+var orderWay = map[string]string{
+	"latest": "release_time DESC",
+	"hotest": "score DESC",
+}
+
+//选电影
+func GetMovieListByTag(tag string, sort string) ([]model.MovieList, error) {
+	ML, err := dao.GetSortMovieByTags(tag, orderWay[sort])
+	return ML, err
+}
+
 //影片评价
 func ChangeMovieScoreById(id int64, star int) error {
 

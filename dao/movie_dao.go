@@ -77,6 +77,43 @@ func QueryByMovie(id int64) (float64, float64, error) {
 	return Score, Number, nil
 }
 
+//选电影
+func GetSortMovieByTags(tag string, sortWay string) ([]model.MovieList, error) {
+	var MovieLists []model.MovieList
+
+	sqlStr := "SELECT id,name, poster, score FROM movie WHERE tags LIKE '%?%'"
+	sqlStr = sqlStr + "ORDER BY " + sortWay
+	Stmt, err := DB.Prepare(sqlStr)
+
+	defer Stmt.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := Stmt.Query(tag)
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	for rows.Next() {
+		var MovieList model.MovieList
+		err = rows.Scan(&MovieList.Id, &MovieList.Name, &MovieList.Poster, &MovieList.Score)
+		if err != nil {
+			return nil, err
+		}
+
+		MovieLists = append(MovieLists, MovieList)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return MovieLists, nil
+}
+
 //跟新电影评分
 func UpdateMovieScore(Score float64, id int64) error {
 	sqlStr := "update  movie  set  score=? where id = ? ;"

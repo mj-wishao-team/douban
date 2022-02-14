@@ -13,6 +13,8 @@ type MovieController struct {
 
 func (M *MovieController) Router(engine *gin.Engine) {
 	engine.GET("api/movie/subject/:id", getMovie)
+	engine.GET("api/movie", GetMovieList)
+
 }
 
 //获取电影信息
@@ -33,8 +35,25 @@ func getMovie(ctx *gin.Context) {
 	tool.RespSuccessfulWithData(ctx, movies)
 }
 
-//排行榜
+//选电影
+func GetMovieListByTag(ctx *gin.Context) {
+	tag := ctx.PostForm("tag")
+	sort := ctx.PostForm("sort")
 
+	MovieList, err := service.GetMovieListByTag(tag, sort)
+	if err != nil {
+		tool.RespErrorWithData(ctx, "未找到相关条件")
+		return
+	}
+	tool.RespSuccessfulWithData(ctx, MovieList)
+}
+
+//获取电影列表
+func GetMovieList(ctx *gin.Context) {
+
+}
+
+//排行榜
 func getMovieLeaderboard(ctx *gin.Context) {
 
 }

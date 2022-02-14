@@ -23,3 +23,10 @@ type Movie struct {
 	FourStar     int
 	FiveStar     int
 }
+
+type MovieList struct {
+	Id     int64
+	Name   string
+	Poster string
+	Score  string
+}
