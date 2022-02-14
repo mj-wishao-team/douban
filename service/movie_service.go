@@ -38,6 +38,12 @@ func GetMovieListByTag(tag string, sort string, limit int) ([]model.MovieList, e
 	return ML, err
 }
 
+//电影排行榜
+func GetMovieLeaderboard(limit int) ([]model.MovieList, error) {
+	MovieList, err := dao.GetMovieLeaderboard(limit)
+	return MovieList, err
+}
+
 //影片评价
 func ChangeMovieScoreById(id int64, star int) error {
 

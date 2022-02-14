@@ -15,7 +15,7 @@ func (M *MovieController) Router(engine *gin.Engine) {
 	engine.GET("api/movie/subject/:id", getMovie)
 	engine.GET("api/movie", GetMovieList)
 	engine.GET("api/movie/explore", GetMovieListByTag)
-
+	engine.GET("api/movie/chart", getMovieLeaderboard)
 }
 
 //获取单个电影信息
@@ -59,5 +59,6 @@ func GetMovieList(ctx *gin.Context) {
 
 //排行榜
 func getMovieLeaderboard(ctx *gin.Context) {
-
+	var limit int = 20
+	service.GetMovieLeaderboard(limit)
 }

@@ -78,6 +78,47 @@ func QueryByMovie(id int64) (float64, float64, error) {
 	return Score, Number, nil
 }
 
+//电影排行榜
+func GetMovieLeaderboard(limit int) ([]model.MovieList, error) {
+	var MovieLists []model.MovieList
+
+	sqlStr := "SELECT id,name, poster, score FROM movie ORDER BY score DESC LIMIT ?;"
+
+	Stmt, err := DB.Prepare(sqlStr)
+
+	defer Stmt.Close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := Stmt.Query(limit)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	for rows.Next() {
+		var MovieList model.MovieList
+		err = rows.Scan(&MovieList.Id, &MovieList.Name, &MovieList.Poster, &MovieList.Score)
+		if err != nil {
+			return nil, err
+		}
+
+		MovieLists = append(MovieLists, MovieList)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return MovieLists, nil
+}
+
 //选电影
 func GetSortMovieByTags(tag string, sortWay string, limit int) ([]model.MovieList, error) {
 	var MovieLists []model.MovieList
