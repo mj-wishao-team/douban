@@ -8,6 +8,7 @@ type Movie struct {
 	ScreenWriter string
 	Starring     string
 	Type         string
+	Tag          string
 	Country      string
 	Language     string
 	ReleaseTime  string

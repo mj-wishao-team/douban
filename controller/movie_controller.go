@@ -14,10 +14,11 @@ type MovieController struct {
 func (M *MovieController) Router(engine *gin.Engine) {
 	engine.GET("api/movie/subject/:id", getMovie)
 	engine.GET("api/movie", GetMovieList)
+	engine.GET("api/movie/explore", GetMovieListByTag)
 
 }
 
-//获取电影信息
+//获取单个电影信息
 func getMovie(ctx *gin.Context) {
 	Id, err := strconv.ParseInt(ctx.Query("id"), 10, 64)
 	if err != nil {
@@ -38,9 +39,12 @@ func getMovie(ctx *gin.Context) {
 //选电影
 func GetMovieListByTag(ctx *gin.Context) {
 	tag := ctx.PostForm("tag")
+	//分类
 	sort := ctx.PostForm("sort")
+	//个数限制
+	limit, _ := strconv.Atoi(ctx.PostForm("limit"))
 
-	MovieList, err := service.GetMovieListByTag(tag, sort)
+	MovieList, err := service.GetMovieListByTag(tag, sort, limit)
 	if err != nil {
 		tool.RespErrorWithData(ctx, "未找到相关条件")
 		return

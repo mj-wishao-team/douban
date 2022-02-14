@@ -8,7 +8,7 @@ func GetMovieById(id int64) ([]model.Movie, error) {
 	var movies []model.Movie
 	var movie model.Movie
 
-	sqlStr := "SELECT id,name,poster,director,screenwriter,starring,type,country,language,release_time,duration,alias,imdb,age, score,peoples,one_star,two_star,three_star,four_star,five_star FROM movie WHERE id= ? "
+	sqlStr := "SELECT id,name,poster,director,screenwriter,starring,type,tag,country,language,release_time,duration,alias,imdb,age, score,peoples,one_star,two_star,three_star,four_star,five_star FROM movie WHERE id= ? "
 	Stmt, err := DB.Prepare(sqlStr)
 
 	defer Stmt.Close()
@@ -29,6 +29,7 @@ func GetMovieById(id int64) ([]model.Movie, error) {
 		&movie.ScreenWriter,
 		&movie.Starring,
 		&movie.Type,
+		&movie.Tag,
 		&movie.Country,
 		&movie.Language,
 		&movie.ReleaseTime,
@@ -78,11 +79,11 @@ func QueryByMovie(id int64) (float64, float64, error) {
 }
 
 //选电影
-func GetSortMovieByTags(tag string, sortWay string) ([]model.MovieList, error) {
+func GetSortMovieByTags(tag string, sortWay string, limit int) ([]model.MovieList, error) {
 	var MovieLists []model.MovieList
 
 	sqlStr := "SELECT id,name, poster, score FROM movie WHERE tags LIKE '%?%'"
-	sqlStr = sqlStr + "ORDER BY " + sortWay
+	sqlStr = sqlStr + "ORDER BY " + sortWay + "limit ?"
 	Stmt, err := DB.Prepare(sqlStr)
 
 	defer Stmt.Close()
@@ -91,7 +92,7 @@ func GetSortMovieByTags(tag string, sortWay string) ([]model.MovieList, error) {
 		return nil, err
 	}
 
-	rows, err := Stmt.Query(tag)
+	rows, err := Stmt.Query(tag, limit)
 
 	if rows.Err() != nil {
 		return nil, rows.Err()

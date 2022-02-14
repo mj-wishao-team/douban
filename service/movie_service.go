@@ -33,8 +33,8 @@ var orderWay = map[string]string{
 }
 
 //选电影
-func GetMovieListByTag(tag string, sort string) ([]model.MovieList, error) {
-	ML, err := dao.GetSortMovieByTags(tag, orderWay[sort])
+func GetMovieListByTag(tag string, sort string, limit int) ([]model.MovieList, error) {
+	ML, err := dao.GetSortMovieByTags(tag, orderWay[sort], limit)
 	return ML, err
 }
 
