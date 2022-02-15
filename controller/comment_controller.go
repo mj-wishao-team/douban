@@ -17,9 +17,8 @@ type CommentController struct {
 func (C *CommentController) Router(engine *gin.Engine) {
 	engine.POST("api/movie/comment/put_short", JWTAuthMiddleware(), putMovieShortComment)
 	engine.POST("api/movie/comment/put_large", JWTAuthMiddleware(), putMovieLargeComment)
-	engine.GET("api/movie/comment/get_short", JWTAuthMiddleware(), getShortComment)
-	engine.GET("api/movie/comment/get_large", JWTAuthMiddleware(), getLargeComment)
-	engine.GET("api/movie/comment/get_large", JWTAuthMiddleware(), getLargeComment)
+	engine.GET("api/movie/comment/get_short", getShortComment)
+	engine.GET("api/movie/comment/get_large", getLargeComment)
 	engine.GET("api/people/reviews", JWTAuthMiddleware(), GetSelfReviews)
 }
 

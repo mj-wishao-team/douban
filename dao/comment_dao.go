@@ -26,7 +26,7 @@ func InsertLargeComment(largeComment model.LargeComment) error {
 func QueryShortCommentByMid(mid int64) ([]model.ShortComment, error) {
 	var commentSlice []model.ShortComment
 
-	stmt, err := DB.Prepare(`SELECT id, mid, uid, comment, post_time,help,star,report FROM short_comment WHERE mid= ?`)
+	stmt, err := DB.Prepare(`SELECT s.id, s.mid, s.uid,u.avatar,u.username, s.comment, s.post_time,s.help,s.star,s.report FROM short_comment s JOIN user u ON s.uid=u.id AND s.mid=?`)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func QueryShortCommentByMid(mid int64) ([]model.ShortComment, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var commentModel model.ShortComment
-		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Uid, &commentModel.Comment, &commentModel.Time, &commentModel.Help, &commentModel.Star, &commentModel.Report)
+		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Uid, &commentModel.Avatar, &commentModel.Username, &commentModel.Comment, &commentModel.Time, &commentModel.Help, &commentModel.Star, &commentModel.Report)
 		if err != nil {
 			return nil, err
 		}
@@ -54,7 +54,7 @@ func QueryShortCommentByMid(mid int64) ([]model.ShortComment, error) {
 func QueryLargeCommentByMid(mid int64) ([]model.LargeComment, error) {
 	var commentSlice []model.LargeComment
 
-	stmt, err := DB.Prepare(`SELECT id, mid, uid,title, comment, time,likes,unlike,star,report FROM large_comment WHERE mid= ?`)
+	stmt, err := DB.Prepare(`SELECT l.id, l.mid, u.avatar,u.username,l.uid,l.title, l.comment, l.time,l.likes,l.unlike,l.star,l.report FROM large_comment l JOIN user u ON l.uid=u.id AND l.mid=?`)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func QueryLargeCommentByMid(mid int64) ([]model.LargeComment, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var commentModel model.LargeComment
-		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Uid, &commentModel.Title, &commentModel.Comment, &commentModel.Time, &commentModel.Likes, &commentModel.Unlikes, &commentModel.Star, &commentModel.Report)
+		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Avatar, &commentModel.Username, &commentModel.Uid, &commentModel.Title, &commentModel.Comment, &commentModel.Time, &commentModel.Likes, &commentModel.Unlikes, &commentModel.Star, &commentModel.Report)
 		if err != nil {
 			return nil, err
 		}
@@ -77,6 +77,7 @@ func QueryLargeCommentByMid(mid int64) ([]model.LargeComment, error) {
 
 	return commentSlice, nil
 }
+
 func QueryLargeCommentByUid(uid int64) ([]model.LargeComment, error) {
 	var commentSlice []model.LargeComment
 
