@@ -5,12 +5,20 @@ import (
 	"douban/model"
 )
 
+//发表讨论
 func PutDiscussion(discussion model.Discussion) error {
 	err := dao.InsertDiscussion(discussion)
 	return err
 }
 
-func GetDiscussion(sort string, mid int64) ([]model.DiscussionList, error) {
+//获取讨论列表
+func GetDiscussionList(sort string, mid int64) ([]model.DiscussionList, error) {
 	discussionList, err := dao.GetDiscussionList(orderWay[sort], mid)
 	return discussionList, err
+}
+
+//获取讨论
+func GetDiscussion(id int64) ([]model.Discussion, error) {
+	Discussion, err := dao.GetDiscussion(id)
+	return Discussion, err
 }

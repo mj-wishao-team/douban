@@ -6,6 +6,7 @@ import (
 	"douban/tool"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -18,7 +19,8 @@ func (D *DiscussController) Router(engine *gin.Engine) {
 	engine.DELETE("api/movie/dicussion/delele_discuss", deleteDiscuss)
 	engine.PUT("api/movie/discussion/updata", updateDiscuss)
 	engine.POST("api/movie/discussion/:id/like", discussLike)
-	engine.GET("api/movie/discussion/:mid", GetDiscussion)
+	engine.GET("api/movie/discussion/:mid", GetDiscussionList)
+	engine.GET("api/movie/discussion/:mid/:id", GetDiscussion)
 }
 
 //发表讨论
@@ -49,7 +51,7 @@ func putDiscuss(ctx *gin.Context) {
 }
 
 //获取讨论列表
-func GetDiscussion(ctx *gin.Context) {
+func GetDiscussionList(ctx *gin.Context) {
 	//分类获取 默认为热度排名
 	sort := ctx.PostForm("sort")
 
@@ -59,7 +61,7 @@ func GetDiscussion(ctx *gin.Context) {
 		fmt.Println("", err)
 		return
 	}
-	dL, err := service.GetDiscussion(sort, mid)
+	dL, err := service.GetDiscussionList(sort, mid)
 	if err != nil {
 		tool.RespErrorWithData(ctx, "")
 		fmt.Println("GetDiscussion IS ERR", err)
@@ -67,6 +69,29 @@ func GetDiscussion(ctx *gin.Context) {
 	}
 	tool.RespSuccessfulWithData(ctx, dL)
 
+}
+
+//获取讨论
+func GetDiscussion(ctx *gin.Context) {
+
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if err != nil {
+		tool.RespInternalError(ctx)
+		fmt.Println("Getdiscussion is ERR ", err)
+		return
+	}
+	Discussion, err := service.GetDiscussion(id)
+
+	if err != nil && err.Error() != "sql: no rows in result set" {
+		tool.RespInternalError(ctx)
+		fmt.Println("GetDiscussion is ERR ", err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"Discussion": Discussion,
+		"Reply":      nil,
+	})
 }
 
 //删除讨论
