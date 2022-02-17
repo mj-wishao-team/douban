@@ -92,20 +92,25 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 				ctx.Abort()
 				return
 			}
+
 			fmt.Println("token 更新")
 			fmt.Println(accessToken + " " + refreshToken)
 
 			// 如果需要刷新双Token时，返回双Token
 			ctx.JSON(http.StatusOK, gin.H{
-				"data":  "Token Refresh Success",
-				"token": accessToken + " " + refreshToken,
+				"data":          "Token Refresh Success",
+				"access_token":  accessToken,
+				"refresh_token": refreshToken,
 			})
 		}
+
 		ctx.JSON(http.StatusOK, gin.H{
-			"data":  "Token not refresh",
-			"token": parts[1] + " " + parts[2],
+			"data":          "Token not refresh",
+			"access_token":  parts[1],
+			"refresh_token": parts[2],
 		})
 		ctx.Set("id", Clams.User.Id)
+		ctx.Set("username", Clams.User.Username)
 		ctx.Next()
 	}
 
