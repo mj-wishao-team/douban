@@ -15,3 +15,13 @@ type Discussion struct {
 	Date      time.Time
 	Stars     int64
 }
+type DiscussionList struct {
+	Id        int64
+	Uid       int64
+	Mid       int64
+	UserName  string
+	MovieName string
+	Title     string
+	ReplyNum  int64
+	Date      time.Time
+}

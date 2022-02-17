@@ -31,12 +31,13 @@ func putDiscuss(ctx *gin.Context) {
 	}
 
 	Discussions := model.Discussion{
-		Uid:   ctx.MustGet("id").(int64),
-		Mid:   mid,
-		Title: ctx.PostForm("tile"),
-		Value: ctx.PostForm("value"),
-		Date:  time.Now(),
-		Stars: 0,
+		Uid:      ctx.MustGet("id").(int64),
+		Mid:      mid,
+		UserName: ctx.MustGet("username").(string),
+		Title:    ctx.PostForm("tile"),
+		Value:    ctx.PostForm("value"),
+		Date:     time.Now(),
+		Stars:    0,
 	}
 
 	err = service.PutDiscussion(Discussions)
@@ -47,8 +48,24 @@ func putDiscuss(ctx *gin.Context) {
 	}
 }
 
-//获取讨论
+//获取讨论列表
 func GetDiscussion(ctx *gin.Context) {
+	//分类获取 默认为热度排名
+	sort := ctx.PostForm("sort")
+
+	mid, err := strconv.ParseInt(ctx.PostForm("mid"), 10, 64)
+	if err != nil {
+		tool.RespErrorWithData(ctx, "解析错误")
+		fmt.Println("", err)
+		return
+	}
+	dL, err := service.GetDiscussion(sort, mid)
+	if err != nil {
+		tool.RespErrorWithData(ctx, "")
+		fmt.Println("GetDiscussion IS ERR", err)
+		return
+	}
+	tool.RespSuccessfulWithData(ctx, dL)
 
 }
 
