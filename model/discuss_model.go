@@ -1,0 +1,17 @@
+package model
+
+import "time"
+
+type Discussion struct {
+	Id        int64
+	Uid       int64
+	Mid       int64
+	UserName  string
+	MovieName string
+	Avatar    string
+	Title     string
+	Value     string
+	ReplyNum  int64
+	Date      time.Time
+	Stars     int64
+}
