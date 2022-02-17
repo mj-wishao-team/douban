@@ -15,29 +15,23 @@ type Config struct {
 	Redis    RedisConfig    `json:"redis_config"`
 	Jwt      JwtCfg         `json:"jwt"`
 	Sms      SmsCfg         `json:"sms"`
-	Oss      OssCfg         `json:"oss"`
+	Cos      CosCfg         `json:"cos"`
 }
 
-type OssCfg struct {
-	EndPoint     string `json:"end_point"`
-	AppKey       string `json:"app_key"`
-	AppSecret    string `json:"app_secret"`
-	AvatarBucket string `json:"avatar_bucket"`
-	AvatarUrl    string `json:"avatar_url"`
-	VideosBucket string `json:"videos_bucket"`
-	VideosUrl    string `json:"videos_url"`
+type CosCfg struct {
+	SecretId  string `json:"secret_id"`
+	SecretKey string `json:"secret_key"`
+	AvatarUrl string `json:"avatar_url"`
 }
 
 type SmsCfg struct {
-	LongBucketUrl string `json:"tencent_could_long_bucket_url"`
-	TemplateId    string `json:"tencent_could_template_id"`
-	SignName      string `json:"tencent_could_sign_name"`
-	SmsSdkAppId   string `json:"tencent_could_sms_sdk_app_id"`
-	AppId         string `json:"tencent_could_app_id"`
-	SecretKey     string `json:"tencent_could_secret_key"`
-	SecretId      string `json:"tencent_could_secret_id"`
-	RegionAddr    string `json:"tencent_could_region_addr"`
-	HttpEndpoint  string `json:"tencent_could_http_endpoint"`
+	TemplateId   string `json:"tencent_could_template_id"`
+	SignName     string `json:"tencent_could_sign_name"`
+	SmsSdkAppId  string `json:"tencent_could_sms_sdk_app_id"`
+	SecretKey    string `json:"tencent_could_secret_key"`
+	SecretId     string `json:"tencent_could_secret_id"`
+	RegionAddr   string `json:"tencent_could_region_addr"`
+	HttpEndpoint string `json:"tencent_could_http_endpoint"`
 }
 
 type JwtCfg struct {
