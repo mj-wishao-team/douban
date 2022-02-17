@@ -24,8 +24,7 @@ func SendSms(phone, code string) error {
 	request.SmsSdkAppId = common.StringPtr(SmsCfg.SmsSdkAppId)
 	request.SignName = common.StringPtr(SmsCfg.SignName)
 	request.TemplateId = common.StringPtr(SmsCfg.TemplateId)
-	request.TemplateParamSet = common.StringPtrs([]string{code})
-
+	request.TemplateParamSet = common.StringPtrs([]string{code, "5"})
 	response, err := client.SendSms(request)
 	if _, ok := err.(*errors.TencentCloudSDKError); ok {
 		fmt.Printf("An API error has returned: %s", err)
