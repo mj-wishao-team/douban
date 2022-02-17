@@ -4,6 +4,58 @@ import (
 	"douban/model"
 )
 
+func SearchMovies(word string) ([]model.Movie, error) {
+	var movies []model.Movie
+	var movie model.Movie
+
+	sqlStr := "SELECT id,name,poster,director,screenwriter,starring,type,tag,country,language,release_time,duration,alias,imdb,age, score,peoples,one_star,two_star,three_star,four_star,five_star FROM movie WHERE name LIKE '%?%' "
+	Stmt, err := DB.Prepare(sqlStr)
+
+	defer Stmt.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := Stmt.Query(word)
+
+	for rows.Next() {
+		err = rows.Scan(
+			&movie.Id,
+			&movie.Name,
+			&movie.Poster,
+			&movie.Director,
+			&movie.ScreenWriter,
+			&movie.Starring,
+			&movie.Type,
+			&movie.Tag,
+			&movie.Country,
+			&movie.Language,
+			&movie.ReleaseTime,
+			&movie.Duration,
+			&movie.Alias,
+			&movie.Imdb,
+			&movie.Age,
+			&movie.Score,
+			&movie.Peoples,
+			&movie.OneStar,
+			&movie.TwoStar,
+			&movie.ThreeStar,
+			&movie.FourStar,
+			&movie.FiveStar,
+		)
+		if err != nil {
+			return nil, err
+		}
+		movies = append(movies, movie)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return movies, err
+
+}
 func GetMovieById(id int64) ([]model.Movie, error) {
 	var movies []model.Movie
 	var movie model.Movie

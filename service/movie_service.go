@@ -7,6 +7,12 @@ import (
 	"strconv"
 )
 
+//搜索电影
+func SearchMovies(word string) ([]model.Movie, error) {
+	Movies, err := dao.SearchMovies(word)
+	return Movies, err
+}
+
 //获取单个电影信息
 func GetMovieById(id int64) ([]model.Movie, error) {
 	movies, err := dao.GetMovieById(id)
