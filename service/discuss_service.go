@@ -28,3 +28,9 @@ func DeleteDisucuss(id int64) error {
 	err := dao.DeleteDiscussion(id)
 	return err
 }
+
+//跟新讨论
+func UpdateDiscussion(discussion model.Discussion) error {
+	err := dao.UpdateDiscussion(discussion)
+	return err
+}

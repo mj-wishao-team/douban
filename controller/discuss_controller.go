@@ -115,7 +115,30 @@ func deleteDiscuss(ctx *gin.Context) {
 
 //跟新讨论
 func updateDiscuss(ctx *gin.Context) {
+	mid, err := strconv.ParseInt(ctx.PostForm("mid"), 10, 64)
+	if err != nil {
+		tool.RespErrorWithData(ctx, "解析错误")
+		fmt.Println("", err)
+		return
+	}
 
+	Discussions := model.Discussion{
+		Uid:      ctx.MustGet("id").(int64),
+		Mid:      mid,
+		UserName: ctx.MustGet("username").(string),
+		Title:    ctx.PostForm("tile"),
+		Value:    ctx.PostForm("value"),
+		Date:     time.Now(),
+		Stars:    0,
+	}
+
+	err = service.UpdateDiscussion(Discussions)
+	if err != nil {
+		tool.RespErrorWithData(ctx, "发表失败")
+		fmt.Println("PutDiscusion is ERR ", err)
+		return
+	}
+	tool.RespSuccessfulWithData(ctx, "跟新成功")
 }
 
 //点赞or取消

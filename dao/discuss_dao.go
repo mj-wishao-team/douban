@@ -108,3 +108,14 @@ func DeleteDiscussion(id int64) error {
 	return err
 
 }
+
+//跟新讨论
+func UpdateDiscussion(discussion model.Discussion) error {
+	sqlStr := "UPDATE discussion SET title = ?, value = ?, time = ? WHERE id = ? AND uid = ?"
+	stmt, err := DB.Prepare(sqlStr)
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(discussion.Title, discussion.Value, discussion.Date, discussion.Id, discussion.Uid)
+	return err
+}
