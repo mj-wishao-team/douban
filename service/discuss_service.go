@@ -22,3 +22,9 @@ func GetDiscussion(id int64) ([]model.Discussion, error) {
 	Discussion, err := dao.GetDiscussion(id)
 	return Discussion, err
 }
+
+//删除讨论
+func DeleteDisucuss(id int64) error {
+	err := dao.DeleteDiscussion(id)
+	return err
+}

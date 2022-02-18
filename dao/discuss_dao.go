@@ -94,5 +94,17 @@ func GetDiscussionList(sort string, mid int64) (DiscussionLists []model.Discussi
 	}
 
 	return DiscussionLists, nil
+}
+
+//删除讨论
+func DeleteDiscussion(id int64) error {
+	sqlStr := "DELETE FROM discussion WHERE id= ?"
+	stmt, err := DB.Prepare(sqlStr)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(id)
+	return err
 
 }

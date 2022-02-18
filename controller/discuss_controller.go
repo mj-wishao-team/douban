@@ -96,6 +96,20 @@ func GetDiscussion(ctx *gin.Context) {
 
 //删除讨论
 func deleteDiscuss(ctx *gin.Context) {
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if err != nil {
+		tool.RespInternalError(ctx)
+		fmt.Println("deleteDiscuss is ERR ", err)
+		return
+	}
+	err = service.DeleteDisucuss(id)
+
+	if err != nil {
+		tool.RespErrorWithData(ctx, "删除失败")
+		fmt.Println("deleteDiscussion is ERR", err)
+		return
+	}
+	tool.RespSuccessfulWithData(ctx, "删除成功")
 
 }
 
