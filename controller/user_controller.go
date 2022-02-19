@@ -340,15 +340,69 @@ func changeAccount(ctx *gin.Context) {
 
 //注销账号
 func suicideAccount(ctx *gin.Context) {
-	id := ctx.MustGet("id").(int64)
-	tool.CatchPanic(ctx, "suicideAccount")
-	err := service.DeleteAccount(id)
-	if err != nil {
-		tool.RespErrorWithData(ctx, "注销失败")
-		fmt.Println("suicideAccount_DeleteAccount  is ERR", err)
+
+	accessToken := ctx.PostForm("access_token")
+	refreshToken := ctx.PostForm("refresh_token")
+
+	if accessToken != "" && refreshToken != "" {
+		Claims, flag, err := service.ParseToken(accessToken, refreshToken)
+
+		if err != nil {
+			tool.RespErrorWithData(ctx, "token错误")
+			fmt.Println("err", err)
+			return
+		}
+		if flag {
+			accessToken, err := service.GenToken(Claims.User, 3600*24, "ACCESS_TOKEN")
+			if err != nil {
+				fmt.Println("JWTAuthMiddleware_CreateAccessTokenErr:", err)
+				tool.RespInternalError(ctx)
+				return
+			}
+
+			//refreshToken 一周
+			refreshToken, err := service.GenToken(Claims.User, 604800, "REFRESH_TOKEN")
+			if err != nil {
+				fmt.Println("JWTAuthMiddleware_CreateRefreshTokenErr:", err)
+				tool.RespInternalError(ctx)
+				return
+			}
+
+			err = service.DeleteAccount(Claims.User.Id)
+			if err != nil {
+				tool.RespErrorWithData(ctx, "注销失败")
+				fmt.Println("suicideAccount_DeleteAccount  is ERR", err)
+				return
+			}
+
+			ctx.JSON(http.StatusOK, gin.H{
+				"data":          "注销成功",
+				"status":        "true",
+				"refresh_token": refreshToken,
+				"access_token":  accessToken,
+			})
+
+		} else {
+			err := service.DeleteAccount(Claims.User.Id)
+			if err != nil {
+				tool.RespErrorWithData(ctx, "注销失败")
+				fmt.Println("suicideAccount_DeleteAccount  is ERR", err)
+				return
+			}
+
+			ctx.JSON(http.StatusOK, gin.H{
+				"data":          "注销成功",
+				"status":        "true",
+				"refresh_token": refreshToken,
+				"access_token":  accessToken,
+			})
+		}
 		return
+	} else {
+		tool.RespErrorWithData(ctx, "请重新登录")
 	}
-	tool.RespSuccessfulWithData(ctx, "注销成功")
+	tool.CatchPanic(ctx, "suicideAccount")
+
 }
 
 //解绑手机号
