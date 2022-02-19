@@ -29,15 +29,15 @@ func (u *UserController) Router(engine *gin.Engine) {
 	engine.POST("/api/verify/emial", SendEmail)
 
 	engine.PUT("/api/user/unbind_phone", unbindPhone)
-	engine.PUT("/api/user/bind_phone", JWTAuthMiddleware(), bindPhone)
-	engine.PUT("/api/user/bind_email", JWTAuthMiddleware(), bindEmail)
+	engine.PUT("/api/user/bind_phone", bindPhone)
+	engine.PUT("/api/user/bind_email", bindEmail)
 	engine.PUT("/api/user/unbind_email", JWTAuthMiddleware(), unbindEmail)
 
 	engine.PUT("/api/user/change_habitat", changeHabitat)
 	engine.PUT("/api/user/change_account", changeAccount)
 	engine.PUT("/api/user/change_avatar", changeAvatar)
 
-	engine.DELETE("/api/user/suicide", JWTAuthMiddleware(), suicideAccount)
+	engine.DELETE("/api/user/suicide", suicideAccount)
 }
 
 //User的账号设置
@@ -732,37 +732,131 @@ func bindEmail(ctx *gin.Context) {
 		return
 	}
 
-	//校验验证码
-	flag, err := service.JudgeVerifyCode(ctx, emailParam.Email, emailParam.VerifyCode)
+	accessToken := ctx.PostForm("access_token")
+	refreshToken := ctx.PostForm("refresh_token")
 
-	if err != nil {
-		tool.RespInternalError(ctx)
-		fmt.Println("bindEmail_JudgeVerifyCode ERR is :", err)
-		return
-	}
+	if accessToken != "" && refreshToken != "" {
+		Claims, flag, err := service.ParseToken(accessToken, refreshToken)
 
-	if flag {
-		_, bool, err := service.JudgeAndQueryUserByEmail(emailParam.Email)
 		if err != nil {
-			fmt.Println("bindEmail_JudgeAndQueryUserByEmail ERR is :", err)
-			tool.RespInternalError(ctx)
+			tool.RespErrorWithData(ctx, "token错误")
+			fmt.Println("err", err)
 			return
 		}
-		if bool {
-			tool.RespErrorWithData(ctx, "邮箱已经被其他账号绑定")
-			return
+		if flag {
+			accessToken, err := service.GenToken(Claims.User, 3600*24, "ACCESS_TOKEN")
+			if err != nil {
+				fmt.Println("JWTAuthMiddleware_CreateAccessTokenErr:", err)
+				tool.RespInternalError(ctx)
+				return
+			}
+
+			//refreshToken 一周
+			refreshToken, err := service.GenToken(Claims.User, 604800, "REFRESH_TOKEN")
+			if err != nil {
+				fmt.Println("JWTAuthMiddleware_CreateRefreshTokenErr:", err)
+				tool.RespInternalError(ctx)
+				return
+			}
+
+			flag, err := service.JudgeVerifyCode(ctx, emailParam.Email, emailParam.VerifyCode)
+
+			if err != nil {
+				tool.RespInternalError(ctx)
+				fmt.Println("bindEmail_JudgeVerifyCode ERR is :", err)
+				return
+			}
+
+			if flag {
+				_, bool, err := service.JudgeAndQueryUserByEmail(emailParam.Email)
+				if err != nil {
+					fmt.Println("bindEmail_JudgeAndQueryUserByEmail ERR is :", err)
+					tool.RespInternalError(ctx)
+					return
+				}
+				if bool {
+					ctx.JSON(http.StatusOK, gin.H{
+						"data":          "已经被其他账户绑定",
+						"status":        "true",
+						"refresh_token": refreshToken,
+						"access_token":  accessToken,
+					})
+					return
+				}
+				err = service.ChangeEmail(emailParam.Email, id)
+				if err != nil {
+					fmt.Println("bindEmail_ChangeEmail ERR is :", err)
+					tool.RespInternalError(ctx)
+					return
+				}
+				ctx.JSON(http.StatusOK, gin.H{
+					"data":          "绑定成功",
+					"status":        "true",
+					"refresh_token": refreshToken,
+					"access_token":  accessToken,
+				})
+				return
+			} else {
+				ctx.JSON(http.StatusOK, gin.H{
+					"data":          "绑定失败",
+					"status":        "true",
+					"refresh_token": refreshToken,
+					"access_token":  accessToken,
+				})
+				return
+			}
+		} else {
+			//校验验证码
+			flag, err := service.JudgeVerifyCode(ctx, emailParam.Email, emailParam.VerifyCode)
+
+			if err != nil {
+				tool.RespInternalError(ctx)
+				fmt.Println("bindEmail_JudgeVerifyCode ERR is :", err)
+				return
+			}
+
+			if flag {
+				_, bool, err := service.JudgeAndQueryUserByEmail(emailParam.Email)
+				if err != nil {
+					fmt.Println("bindEmail_JudgeAndQueryUserByEmail ERR is :", err)
+					tool.RespInternalError(ctx)
+					return
+				}
+				if bool {
+					ctx.JSON(http.StatusOK, gin.H{
+						"data":          "已经被其他账户绑定",
+						"status":        "true",
+						"refresh_token": refreshToken,
+						"access_token":  accessToken,
+					})
+					return
+				}
+				err = service.ChangeEmail(emailParam.Email, id)
+				if err != nil {
+					fmt.Println("bindEmail_ChangeEmail ERR is :", err)
+					tool.RespInternalError(ctx)
+					return
+				}
+				ctx.JSON(http.StatusOK, gin.H{
+					"data":          "绑定成功",
+					"status":        "true",
+					"refresh_token": refreshToken,
+					"access_token":  accessToken,
+				})
+				return
+			} else {
+				ctx.JSON(http.StatusOK, gin.H{
+					"data":          "绑定失败",
+					"status":        "true",
+					"refresh_token": refreshToken,
+					"access_token":  accessToken,
+				})
+				return
+			}
 		}
-		err = service.ChangeEmail(emailParam.Email, id)
-		if err != nil {
-			fmt.Println("bindEmail_ChangeEmail ERR is :", err)
-			tool.RespInternalError(ctx)
-			return
-		}
-		tool.RespSuccessfulWithData(ctx, "绑定成功")
-		return
+
 	} else {
-		tool.RespErrorWithData(ctx, "验证码错误或者过期")
-		return
+		tool.RespErrorWithData(ctx, "请重新登录")
 	}
 }
 
