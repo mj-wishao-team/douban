@@ -28,7 +28,7 @@ func (u *UserController) Router(engine *gin.Engine) {
 	engine.POST("/api/user/login/pw", login)
 	engine.POST("/api/verify/emial", SendEmail)
 
-	engine.PUT("/api/user/unbind_phone", JWTAuthMiddleware(), unbindPhone)
+	engine.PUT("/api/user/unbind_phone", unbindPhone)
 	engine.PUT("/api/user/bind_phone", JWTAuthMiddleware(), bindPhone)
 	engine.PUT("/api/user/bind_email", JWTAuthMiddleware(), bindEmail)
 	engine.PUT("/api/user/unbind_email", JWTAuthMiddleware(), unbindEmail)
@@ -354,8 +354,6 @@ func suicideAccount(ctx *gin.Context) {
 //解绑手机号
 func unbindPhone(ctx *gin.Context) {
 	var phoneParam param.Phone
-	id := ctx.MustGet("id").(int64)
-	//var id int64=4
 	tool.CatchPanic(ctx, "unbindPhone")
 
 	err := ctx.ShouldBind(&phoneParam)
@@ -371,39 +369,115 @@ func unbindPhone(ctx *gin.Context) {
 		return
 	}
 
-	User, bool, err := service.JudgeAndQueryUserByUserID(id)
+	accessToken := ctx.PostForm("access_token")
+	refreshToken := ctx.PostForm("refresh_token")
 
-	if err != nil {
-		tool.RespInternalError(ctx)
-		fmt.Println("unbind_JudgeAndQueryUserByUserID ERR is :", err)
-		return
-	}
-	if !bool {
-		tool.RespErrorWithData(ctx, "用户id不存在")
-		return
+	if accessToken != "" && refreshToken != "" {
+		Claims, flag, err := service.ParseToken(accessToken, refreshToken)
+
+		if err != nil {
+			tool.RespErrorWithData(ctx, "token错误")
+			fmt.Println("err", err)
+			return
+		}
+		if flag {
+			accessToken, err := service.GenToken(Claims.User, 3600*24, "ACCESS_TOKEN")
+			if err != nil {
+				fmt.Println("JWTAuthMiddleware_CreateAccessTokenErr:", err)
+				tool.RespInternalError(ctx)
+				return
+			}
+
+			//refreshToken 一周
+			refreshToken, err := service.GenToken(Claims.User, 604800, "REFRESH_TOKEN")
+			if err != nil {
+				fmt.Println("JWTAuthMiddleware_CreateRefreshTokenErr:", err)
+				tool.RespInternalError(ctx)
+				return
+			}
+			User, bool, err := service.JudgeAndQueryUserByUserID(Claims.User.Id)
+
+			if err != nil {
+				tool.RespInternalError(ctx)
+				fmt.Println("unbind_JudgeAndQueryUserByUserID ERR is :", err)
+				return
+			}
+			if !bool {
+				tool.RespErrorWithData(ctx, "用户id不存在")
+				return
+			}
+
+			//校验验证码
+			flag, err := service.JudgeVerifyCode(ctx, User.Phone, phoneParam.VerifyCode)
+
+			if err != nil {
+				tool.RespInternalError(ctx)
+				fmt.Println("unbindPhone_JudgeVerifyCode ERR is :", err)
+				return
+			}
+			if !flag {
+				tool.RespErrorWithData(ctx, "验证码或密码错误")
+				return
+			}
+
+			err = service.ChangePhone("", Claims.User.Id)
+			if err != nil {
+				tool.RespErrorWithData(ctx, "解绑失败")
+				fmt.Println("unbindPhone_ChangePhone ERR is ", err)
+				return
+			}
+
+			ctx.JSON(http.StatusOK, gin.H{
+				"data":          "解绑成功",
+				"status":        "true",
+				"refresh_token": refreshToken,
+				"access_token":  accessToken,
+			})
+
+		} else {
+			User, bool, err := service.JudgeAndQueryUserByUserID(Claims.User.Id)
+
+			if err != nil {
+				tool.RespInternalError(ctx)
+				fmt.Println("unbind_JudgeAndQueryUserByUserID ERR is :", err)
+				return
+			}
+			if !bool {
+				tool.RespErrorWithData(ctx, "用户id不存在")
+				return
+			}
+
+			//校验验证码
+			flag, err := service.JudgeVerifyCode(ctx, User.Phone, phoneParam.VerifyCode)
+
+			if err != nil {
+				tool.RespInternalError(ctx)
+				fmt.Println("unbindPhone_JudgeVerifyCode ERR is :", err)
+				return
+			}
+			if !flag {
+				tool.RespErrorWithData(ctx, "验证码或密码错误")
+				return
+			}
+
+			err = service.ChangePhone("", Claims.User.Id)
+			if err != nil {
+				tool.RespErrorWithData(ctx, "解绑失败")
+				fmt.Println("unbindPhone_ChangePhone ERR is ", err)
+				return
+			}
+
+			ctx.JSON(http.StatusOK, gin.H{
+				"data":          "解绑成功",
+				"status":        "true",
+				"refresh_token": refreshToken,
+				"access_token":  accessToken,
+			})
+		}
+	} else {
+		tool.RespErrorWithData(ctx, "请重新登录")
 	}
 
-	//校验验证码
-	flag, err := service.JudgeVerifyCode(ctx, User.Phone, phoneParam.VerifyCode)
-
-	if err != nil {
-		tool.RespInternalError(ctx)
-		fmt.Println("unbindPhone_JudgeVerifyCode ERR is :", err)
-		return
-	}
-	if !flag {
-		tool.RespErrorWithData(ctx, "验证码或密码错误")
-		return
-	}
-
-	err = service.ChangePhone("", id)
-	if err != nil {
-		tool.RespErrorWithData(ctx, "解绑失败")
-		fmt.Println("unbindPhone_ChangePhone ERR is ", err)
-		return
-	}
-
-	tool.RespSuccessfulWithData(ctx, "解绑成功")
 }
 
 //绑定手机号
