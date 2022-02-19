@@ -19,7 +19,7 @@ type UserController struct {
 
 func (u *UserController) Router(engine *gin.Engine) {
 
-	engine.GET("/api/user/get_user/:uid", JWTAuthMiddleware(), getUerInfo)
+	engine.GET("/api/user/get_user", getUerInfo)
 	engine.POST("/api/user/get_user/:uid", JWTAuthMiddleware(), accountManagement)
 
 	engine.POST("/api/verify/sms", sendSms)
@@ -32,9 +32,10 @@ func (u *UserController) Router(engine *gin.Engine) {
 	engine.PUT("/api/user/bind_phone", JWTAuthMiddleware(), bindPhone)
 	engine.PUT("/api/user/bind_email", JWTAuthMiddleware(), bindEmail)
 	engine.PUT("/api/user/unbind_email", JWTAuthMiddleware(), unbindEmail)
+
 	engine.PUT("/api/user/change_habitat", JWTAuthMiddleware(), changeHabitat)
-	engine.PUT("/api/user/change_account", JWTAuthMiddleware(), changeAccount)
-	engine.PUT("/api/user/change_avatar", JWTAuthMiddleware(), changeAvatar)
+	engine.PUT("/api/user/change_account", changeAccount)
+	engine.PUT("/api/user/change_avatar", changeAvatar)
 
 	engine.DELETE("/api/user/suicide", JWTAuthMiddleware(), suicideAccount)
 }
@@ -44,23 +45,65 @@ func (u *UserController) Router(engine *gin.Engine) {
 
 func getUerInfo(ctx *gin.Context) {
 	//获取用户ID
-	Id := ctx.MustGet("id").(int64)
+	accessToken := ctx.PostForm("access_token")
+	refreshToken := ctx.PostForm("refresh_token")
 
-	tool.CatchPanic(ctx, "getUerInfo")
+	if accessToken != "" && refreshToken != "" {
+		Claims, flag, err := service.ParseToken(accessToken, refreshToken)
 
-	_, flag, err := service.JudgeAndQueryUserByUserID(Id)
+		if err != nil {
+			tool.RespErrorWithData(ctx, "token错误")
+			fmt.Println("err", err)
+			return
+		}
+		if flag {
+			accessToken, err := service.GenToken(Claims.User, 3600*24, "ACCESS_TOKEN")
+			if err != nil {
+				fmt.Println("JWTAuthMiddleware_CreateAccessTokenErr:", err)
+				tool.RespInternalError(ctx)
+				return
+			}
 
-	if err != nil {
-		fmt.Println("getUerInfo_JudgeUserID is Err: ", err)
-		tool.RespInternalError(ctx)
-		return
+			//refreshToken 一周
+			refreshToken, err := service.GenToken(Claims.User, 604800, "REFRESH_TOKEN")
+			if err != nil {
+				fmt.Println("JWTAuthMiddleware_CreateRefreshTokenErr:", err)
+				tool.RespInternalError(ctx)
+				return
+			}
+
+			UserInfo, err := service.GetUserById(Claims.User.Id)
+			if err != nil {
+				fmt.Println("GetUserById Is err:", err)
+				tool.RespInternalError(ctx)
+				return
+			}
+
+			ctx.JSON(http.StatusOK, gin.H{
+				"userInfo":      UserInfo,
+				"status":        "true",
+				"refresh_token": refreshToken,
+				"access_token":  accessToken,
+			})
+
+		} else {
+			UserInfo, err := service.GetUserById(Claims.User.Id)
+			if err != nil {
+				fmt.Println("GetUserById Is err:", err)
+				tool.RespInternalError(ctx)
+				return
+			}
+
+			ctx.JSON(http.StatusOK, gin.H{
+				"userInfo":      UserInfo,
+				"status":        "true",
+				"refresh_token": refreshToken,
+				"access_token":  accessToken,
+			})
+		}
+	} else {
+		tool.RespErrorWithData(ctx, "请重新登录")
 	}
-
-	if !flag {
-		tool.RespErrorWithData(ctx, "UID无效")
-		return
-	}
-
 }
 
 //账号管理
@@ -71,9 +114,8 @@ func accountManagement(ctx *gin.Context) {
 //修改头像
 func changeAvatar(ctx *gin.Context) {
 	file, header, err := ctx.Request.FormFile("avatar")
-	Id := ctx.MustGet("id").(int64)
 
-	tool.CatchPanic(ctx, "changeAvatar")
+	Id, err := strconv.ParseInt(ctx.PostForm("id"), 10, 64)
 
 	if err != nil {
 		fmt.Println("FormFileErr: ", err)
@@ -101,10 +143,10 @@ func changeAvatar(ctx *gin.Context) {
 		return
 	}
 
-	fileName := strconv.FormatInt(Id, 10) + "_avatar.png"
+	filePath := strconv.FormatInt(Id, 10) + ".png"
 
 	//上传头像
-	err = service.UploadAvatar(file, fileName)
+	err = service.UploadAvatar(file, filePath)
 	if err != nil {
 		fmt.Println("UploadAvatarErr: ", err)
 		tool.RespInternalError(ctx)
@@ -112,7 +154,7 @@ func changeAvatar(ctx *gin.Context) {
 	}
 
 	cfg := tool.GetCfg().Cos
-	url := cfg.AvatarUrl + "/" + fileName
+	url := cfg.AvatarUrl + "/" + filePath
 
 	//头像入数据库
 	err = service.ChangeAvatar(url, Id)
@@ -539,6 +581,7 @@ func login(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{
 			"access_token":  accessToken,
 			"refresh_token": refreshToken,
+			"token":         accessToken + " " + refreshToken,
 			"status":        "ture",
 			"data":          User.Id,
 		})
@@ -640,6 +683,7 @@ func loginBySms(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{
 			"access_token":  accessToken,
 			"refresh_token": refreshToken,
+			"token":         accessToken + " " + refreshToken,
 			"status":        "ture",
 			"data":          User.Id,
 			"info":          "登录成功",
