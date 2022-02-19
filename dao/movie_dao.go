@@ -43,7 +43,8 @@ func GetMovieLeaderboard(start int) (movieLists []model.MovieList, err error) {
 func SelectSubjectsByTag(tag, sort string, start int) (movieLists []model.MovieList, err error) {
 
 	var movieList model.MovieList
-	sqlStr := "SELECT name, score, avatar, mid, tags, detail FROM movie WHERE tags LIKE '%{}%'"
+	var Detail, Score string
+	sqlStr := "SELECT name, score, avatar, mid, tags, detail FROM movie WHERE tags LIKE '%{tag}%'"
 	sqlStr = strings.Replace(sqlStr, "{tag}", tag, -1)
 	sqlStr = sqlStr + " ORDER BY " + sort + " LIMIT 20 OFFSET ?"
 
@@ -51,27 +52,36 @@ func SelectSubjectsByTag(tag, sort string, start int) (movieLists []model.MovieL
 	defer Stmt.Close()
 
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	rows, err := Stmt.Query(start)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	for rows.Next() {
-		err = rows.Scan(&movieList.Name, &movieList.Name, &movieList.Avatar, &movieList.Mid, &movieList.Tags, &movieList.Detail)
+		err = rows.Scan(&movieList.Name, &Score, &movieList.Avatar, &movieList.Mid, &movieList.Tags, &Detail)
 		if err != nil {
-			return
+			return nil, err
+		}
+		err = json.Unmarshal([]byte(Detail), &movieList.Detail)
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal([]byte(Score), &movieList.Score)
+		if err != nil {
+			return nil, err
 		}
 		movieLists = append(movieLists, movieList)
 	}
-	return
+	return movieLists, nil
 }
 
 //搜索电影
 func SearchMovies(key string) (movieLists []model.MovieList, err error) {
 	var movieList model.MovieList
+	var Detail, Score string
 	sqlStr := "SELECT name, score, avatar, mid, tags, detail FROM movie WHERE name LIKE '%{}%'"
 	rows, err := DB.Query(strings.Replace(sqlStr, "{}", key, -1))
 	if err != nil {
@@ -79,9 +89,18 @@ func SearchMovies(key string) (movieLists []model.MovieList, err error) {
 	}
 
 	for rows.Next() {
-		err = rows.Scan(&movieList.Name, &movieList.Name, &movieList.Avatar, &movieList.Mid, &movieList.Tags, &movieList.Detail)
+		err = rows.Scan(&movieList.Name, &Score, &movieList.Avatar, &movieList.Mid, &movieList.Tags, &Detail)
 		if err != nil {
 			return
+		}
+
+		err = json.Unmarshal([]byte(Detail), &movieList.Detail)
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal([]byte(Score), &movieList.Score)
+		if err != nil {
+			return nil, err
 		}
 		movieLists = append(movieLists, movieList)
 	}
