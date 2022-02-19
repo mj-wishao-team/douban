@@ -8,9 +8,6 @@ import (
 //获取短评
 func GetShortCommentByUidAndMid(uid, mid int64) ([]model.ShortComment, error) {
 	SC, err := dao.GetShortCommentByUidAndMid(uid, mid)
-	if err.Error() == "sql: no rows in result set" {
-		return nil, nil
-	}
 	return SC, err
 }
 
@@ -32,9 +29,19 @@ func GetShortCommentSlice(mid int64) ([]model.ShortComment, error) {
 	return commentSlice, err
 }
 
+func GetMovieComment(mid int64) ([]model.ShortComment, error) {
+	commentSlice, err := dao.GetMovieComment(mid)
+	return commentSlice, err
+}
+
 //获取影评
 func GetLargeCommentSlice(mid int64) ([]model.LargeComment, error) {
 	commentSlice, err := dao.QueryLargeCommentByMid(mid)
+	return commentSlice, err
+}
+
+func GetMovieReviews(mid int64) ([]model.LargeComment, error) {
+	commentSlice, err := dao.GetMovieReviews(mid)
 	return commentSlice, err
 }
 

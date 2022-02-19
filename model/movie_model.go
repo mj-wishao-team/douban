@@ -54,3 +54,11 @@ type MovieList struct {
 	Detail MovieDetail `json:"detail"`
 	Score  MovieScore  `json:"score"`
 }
+
+type MovieStatic struct {
+	Mid         int64
+	Uid         int64
+	Type        string
+	MovieName   string
+	MovieAvatar string
+}

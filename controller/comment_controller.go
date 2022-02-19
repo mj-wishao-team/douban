@@ -30,18 +30,24 @@ func addShortCommentLike(ctx *gin.Context) {
 //发表短评
 func putMovieShortComment(ctx *gin.Context) {
 	movieId, err := strconv.ParseInt(ctx.Param("mid"), 10, 64)
-
 	uid := ctx.MustGet("id").(int64)
-	star, err := strconv.Atoi(ctx.PostForm("star"))
-
-	//想看or看过
-	MovieType := ctx.PostForm("type")
+	//fmt.Println(uid)
 
 	if err != nil {
-		tool.RespErrorWithData(ctx, "解析失败")
+		tool.RespErrorWithData(ctx, "解析1失败")
 		fmt.Println("putMovieShortComment is ERR", err)
 		return
 	}
+	MovieType := ctx.PostForm("type")
+
+	star, err := strconv.Atoi(ctx.PostForm("star"))
+
+	if err != nil {
+		fmt.Println("putMovieShortComment is ERR", err)
+		tool.RespErrorWithData(ctx, "解析2失败")
+		return
+	}
+	//想看or看过
 
 	shortComment := ctx.PostForm("comment")
 
@@ -57,6 +63,7 @@ func putMovieShortComment(ctx *gin.Context) {
 		Comment: shortComment,
 		Time:    time.Now(),
 		Star:    star,
+		Static:  MovieType,
 	}
 
 	err = service.PutMovieShortComment(ShorComment)

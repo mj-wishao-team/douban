@@ -12,7 +12,7 @@ type SearchController struct {
 }
 
 func (D *SearchController) Router(engine *gin.Engine) {
-	engine.POST("api/movie/search", search)
+	engine.GET("/api/movie/search", search)
 }
 
 func search(ctx *gin.Context) {

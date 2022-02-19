@@ -8,8 +8,8 @@ type ShortComment struct {
 	Id       int64
 	Mid      int64
 	Uid      int64
-	Avatar   string
 	Username string
+	Avatar   string
 	Static   string
 	Comment  string
 	Time     time.Time

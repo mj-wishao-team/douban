@@ -5,6 +5,7 @@ import (
 	"douban/tool"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"strconv"
 )
 
@@ -12,28 +13,182 @@ type MovieController struct {
 }
 
 func (M *MovieController) Router(engine *gin.Engine) {
-	engine.GET("/api/movie/subject/:id", getMovie)
+	engine.GET("/api/movie/subject/:mid", getMovie)
 	engine.GET("/api/movie", GetMovieList)
-	engine.GET("/api/movie/explore", GetMovieListByTag)
+	engine.GET("/api/movie/sort", GetMovieListByTag)
 	engine.GET("/api/movie/chart", getMovieLeaderboard)
 }
 
 //获取单个电影信息
 func getMovie(ctx *gin.Context) {
-	Id, err := strconv.ParseInt(ctx.Param("start"), 10, 64)
+
+	accessToken := ctx.PostForm("access_token")
+	refreshToken := ctx.PostForm("refresh_token")
+	Id, err := strconv.ParseInt(ctx.Param("mid"), 10, 64)
+
 	if err != nil {
 		tool.RespErrorWithData(ctx, err)
 		fmt.Println("getMovie_ParseInt ERR is", err)
 		return
 	}
 
-	movies, err := service.GetMovieById(Id)
-	if err != nil {
-		tool.RespInternalError(ctx)
-		fmt.Println("getMovie_GetMovieById ERR is", err)
-		return
+	if accessToken != "" && refreshToken != "" {
+		Claims, flag, err := service.ParseToken(accessToken, refreshToken)
+		if err != nil {
+			tool.RespErrorWithData(ctx, "token错误")
+			fmt.Println("err", err)
+			return
+		}
+		if flag {
+			accessToken, err := service.GenToken(Claims.User, 300, "ACCESS_TOKEN")
+			if err != nil {
+				fmt.Println("JWTAuthMiddleware_CreateAccessTokenErr:", err)
+				tool.RespInternalError(ctx)
+				ctx.Abort()
+				return
+			}
+
+			//refreshToken 一周
+			refreshToken, err := service.GenToken(Claims.User, 604800, "REFRESH_TOKEN")
+			if err != nil {
+				fmt.Println("JWTAuthMiddleware_CreateRefreshTokenErr:", err)
+				tool.RespInternalError(ctx)
+				ctx.Abort()
+				return
+			}
+
+			SC, err := service.GetShortCommentByUidAndMid(Claims.User.Id, Id)
+			if err != nil {
+				tool.RespInternalError(ctx)
+				fmt.Println(err)
+				return
+			}
+			movies, err := service.GetMovieById(Id)
+			if err != nil {
+				tool.RespInternalError(ctx)
+				fmt.Println("getMovie_GetMovieById ERR is", err)
+				return
+			}
+
+			Discussion, err := service.GetDiscussionList("time", Id)
+			if err != nil {
+				tool.RespInternalError(ctx)
+				fmt.Println("getMovie_GetDiscussionList ERR is", err)
+				return
+			}
+
+			LC, err := service.GetMovieReviews(Id)
+			if err != nil {
+				tool.RespInternalError(ctx)
+				fmt.Println("getMovie_GetLargeCommentSlice ERR is", err)
+				return
+			}
+
+			sC, err := service.GetMovieComment(Id)
+			if err != nil {
+				tool.RespInternalError(ctx)
+				fmt.Println("getMovie_GetShortCommentSlice ERR is", err)
+				return
+			}
+			ctx.JSON(http.StatusOK, gin.H{
+				"Movies":         movies,
+				"MyShortComment": SC,
+				"acess_token":    accessToken,
+				"refresh_token":  refreshToken,
+				"status":         "true",
+				"discussion":     Discussion,
+				"comment":        sC,
+				"reviews":        LC,
+			})
+			return
+		} else {
+			SC, err := service.GetShortCommentByUidAndMid(Claims.User.Id, Id)
+
+			if err != nil {
+				tool.RespInternalError(ctx)
+				fmt.Println(err)
+				return
+			}
+			movies, err := service.GetMovieById(Id)
+
+			if err != nil {
+				tool.RespInternalError(ctx)
+				fmt.Println("getMovie_GetMovieById ERR is", err)
+				return
+			}
+
+			Discussion, err := service.GetDiscussionList("time", Id)
+			if err != nil {
+				tool.RespInternalError(ctx)
+				fmt.Println("getMovie_GetDiscussionList ERR is", err)
+				return
+			}
+
+			LC, err := service.GetMovieReviews(Id)
+			if err != nil {
+				tool.RespInternalError(ctx)
+				fmt.Println("getMovie_GetLargeCommentSlice ERR is", err)
+				return
+			}
+
+			sC, err := service.GetMovieComment(Id)
+			if err != nil {
+				tool.RespInternalError(ctx)
+				fmt.Println("getMovie_GetShortCommentSlice ERR is", err)
+				return
+			}
+			ctx.JSON(http.StatusOK, gin.H{
+				"Movies":         movies,
+				"MyShortComment": SC,
+				"acess_token":    accessToken,
+				"refresh_token":  refreshToken,
+				"discussion":     Discussion,
+				"comment":        sC,
+				"reviews":        LC,
+				"status":         "true",
+			})
+			return
+		}
+
+	} else {
+
+		movies, err := service.GetMovieById(Id)
+		if err != nil {
+			tool.RespInternalError(ctx)
+			fmt.Println("getMovie_GetMovieById ERR is", err)
+			return
+		}
+
+		Discussion, err := service.GetDiscussionList("time", Id)
+		if err != nil {
+			tool.RespInternalError(ctx)
+			fmt.Println("getMovie_GetDiscussionList ERR is", err)
+			return
+		}
+
+		LC, err := service.GetMovieReviews(Id)
+		if err != nil {
+			tool.RespInternalError(ctx)
+			fmt.Println("getMovie_GetLargeCommentSlice ERR is", err)
+			return
+		}
+
+		sC, err := service.GetMovieComment(Id)
+		if err != nil {
+			tool.RespInternalError(ctx)
+			fmt.Println("getMovie_GetShortCommentSlice ERR is", err)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"Movies":     movies,
+			"status":     "true",
+			"discussion": Discussion,
+			"comment":    sC,
+			"reviews":    LC,
+		})
 	}
-	tool.RespSuccessfulWithData(ctx, movies)
+
 }
 
 //选电影

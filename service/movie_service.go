@@ -3,9 +3,16 @@ package service
 import (
 	"douban/dao"
 	"douban/model"
+	"fmt"
 	"strconv"
 	"strings"
 )
+
+//插入电影的类别(想看OR看过)
+func InsertMovieStatic(MovieType string, uid int64, mid int64) error {
+	err := dao.InsertMovieStatic(MovieType, uid, mid)
+	return err
+}
 
 //搜索电影
 func SearchMovies(word string) ([]model.MovieList, error) {
@@ -35,7 +42,7 @@ func JudgeMovie(Mid int64) (bool, error) {
 
 var orderWay = map[string]string{
 	"latest":       "date DESC",
-	"hotest":       "score DESC",
+	"hotest":       "stars DESC",
 	"reply_number": "reply_number DESC",
 	"time":         "time DESC",
 }
@@ -57,10 +64,12 @@ func UpdateSubjectScore(mid int64, score int) (err error) {
 
 	movie, err := GetMovieById(mid)
 	if err != nil {
+		fmt.Println("001")
 		return err
 	}
 	Score, err := strconv.ParseFloat(movie.Score.Score, 64)
 	if err != nil {
+		fmt.Println("002")
 		return err
 	}
 	Totalcnt := float64(movie.Score.TotalCnt)
@@ -81,6 +90,7 @@ func UpdateSubjectScore(mid int64, score int) (err error) {
 	case 1:
 		NewMovieScore.One, err = parsePctToNewPct(movie.Score.One, Totalcnt)
 		if err != nil {
+			fmt.Println("003")
 			return err
 		}
 	case 2:
@@ -95,7 +105,9 @@ func UpdateSubjectScore(mid int64, score int) (err error) {
 		}
 	case 4:
 		NewMovieScore.Four, err = parsePctToNewPct(movie.Score.Four, Totalcnt)
+
 		if err != nil {
+			fmt.Println("004")
 			return err
 		}
 	case 5:
@@ -112,10 +124,9 @@ func UpdateSubjectScore(mid int64, score int) (err error) {
 
 func parsePctToNewPct(v string, Totalcnt float64) (per string, err error) {
 	v = strings.Replace(v, "%", "", -1)
-	v = "0." + v
 	ret, err := strconv.ParseFloat(v, 64)
 	if err != nil {
 		return v, err
 	}
-	return (strings.TrimLeft(strconv.FormatFloat((ret*Totalcnt+1)/(Totalcnt+1), 'f', 2, 64), "0.") + "%"), err
+	return (strings.TrimLeft(strconv.FormatFloat((ret*Totalcnt+100)/(Totalcnt+1)*100, 'f', 2, 64), "0.") + "%"), err
 }

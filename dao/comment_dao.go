@@ -4,11 +4,38 @@ import (
 	"douban/model"
 )
 
+func GetMovieReviews(mid int64) ([]model.LargeComment, error) {
+	var commentSlice []model.LargeComment
+
+	stmt, err := DB.Prepare(`SELECT l.id, l.mid, u.avatar,u.username,l.uid,l.title, l.comment, l.time,l.likes,l.unlike,l.star,l.report FROM large_comment l JOIN user u ON l.uid=u.id AND l.mid=? ORDER BY l.likes LIMIT 10 `)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(mid)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var commentModel model.LargeComment
+		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Avatar, &commentModel.Username, &commentModel.Uid, &commentModel.Title, &commentModel.Comment, &commentModel.Time, &commentModel.Likes, &commentModel.Unlikes, &commentModel.Star, &commentModel.Report)
+		if err != nil {
+			return nil, err
+		}
+		commentSlice = append(commentSlice, commentModel)
+	}
+
+	return commentSlice, nil
+}
+
 //获取自己短评
 func GetShortCommentByUidAndMid(uid, mid int64) ([]model.ShortComment, error) {
 	var commentSlice []model.ShortComment
 
-	stmt, err := DB.Prepare(`SELECT id,mid,uid,avatar,username, comment,post_time,help,star,static FROM short_comment WHERE uid=? AND mid=?`)
+	stmt, err := DB.Prepare(`SELECT id,mid,uid, comment,post_time,help,star,static FROM short_comment  WHERE uid=? AND mid=?`)
 	if err != nil {
 		return nil, err
 	}
@@ -22,7 +49,7 @@ func GetShortCommentByUidAndMid(uid, mid int64) ([]model.ShortComment, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var commentModel model.ShortComment
-		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Uid, &commentModel.Avatar, &commentModel.Username, &commentModel.Comment, &commentModel.Time, &commentModel.Help, &commentModel.Star, &commentModel.Static)
+		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Uid, &commentModel.Comment, &commentModel.Time, &commentModel.Help, &commentModel.Star, &commentModel.Static)
 		if err != nil {
 			return nil, err
 		}
@@ -55,6 +82,32 @@ func QueryShortCommentByMid(mid int64) ([]model.ShortComment, error) {
 	var commentSlice []model.ShortComment
 
 	stmt, err := DB.Prepare(`SELECT s.id, s.mid, s.uid,u.avatar,u.username, s.comment, s.post_time,s.help,s.star,s.report FROM short_comment s JOIN user u ON s.uid=u.id AND s.mid=?`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(mid)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var commentModel model.ShortComment
+		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Uid, &commentModel.Avatar, &commentModel.Username, &commentModel.Comment, &commentModel.Time, &commentModel.Help, &commentModel.Star, &commentModel.Report)
+		if err != nil {
+			return nil, err
+		}
+		commentSlice = append(commentSlice, commentModel)
+	}
+
+	return commentSlice, nil
+}
+
+func GetMovieComment(mid int64) ([]model.ShortComment, error) {
+	var commentSlice []model.ShortComment
+	stmt, err := DB.Prepare(`SELECT s.id, s.mid, s.uid,u.avatar,u.username, s.comment, s.post_time,s.help,s.star,s.report FROM short_comment s JOIN user u ON s.uid=u.id AND s.mid=? ORDER BY s.help LIMIT 10 `)
 	if err != nil {
 		return nil, err
 	}

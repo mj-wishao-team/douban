@@ -16,7 +16,8 @@ func (C *CelebrityController) Router(engine *gin.Engine) {
 }
 
 func GetCelebrity(ctx *gin.Context) {
-	id, _ := strconv.ParseInt(ctx.Query("id"), 10, 64)
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+
 	Celebrity, err := service.GetCelebrity(id)
 	if err != nil {
 		fmt.Println("GetCelebrity_GetCelebrity is ERR", err)
