@@ -5,6 +5,15 @@ import (
 	"douban/model"
 )
 
+//获取短评
+func GetShortCommentByUidAndMid(uid, mid int64) ([]model.ShortComment, error) {
+	SC, err := dao.GetShortCommentByUidAndMid(uid, mid)
+	if err.Error() == "sql: no rows in result set" {
+		return nil, nil
+	}
+	return SC, err
+}
+
 //发布短评
 func PutMovieShortComment(shortComment model.ShortComment) error {
 	err := dao.InsertShortComment(shortComment)
@@ -32,5 +41,8 @@ func GetLargeCommentSlice(mid int64) ([]model.LargeComment, error) {
 //获取自己的影评
 func GetLargeCommentByUid(Uid int64) ([]model.LargeComment, error) {
 	Comment, err := dao.QueryLargeCommentByUid(Uid)
+	if err.Error() == "sql: no rows in result set" {
+		return nil, nil
+	}
 	return Comment, err
 }

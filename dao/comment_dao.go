@@ -4,11 +4,39 @@ import (
 	"douban/model"
 )
 
+//获取自己短评
+func GetShortCommentByUidAndMid(uid, mid int64) ([]model.ShortComment, error) {
+	var commentSlice []model.ShortComment
+
+	stmt, err := DB.Prepare(`SELECT id,mid,uid,avatar,username, comment,post_time,help,star,static FROM short_comment WHERE uid=? AND mid=?`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(uid, mid)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var commentModel model.ShortComment
+		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Uid, &commentModel.Avatar, &commentModel.Username, &commentModel.Comment, &commentModel.Time, &commentModel.Help, &commentModel.Star, &commentModel.Static)
+		if err != nil {
+			return nil, err
+		}
+		commentSlice = append(commentSlice, commentModel)
+	}
+
+	return commentSlice, nil
+}
+
 //插入短评
 func InsertShortComment(shortComment model.ShortComment) error {
-	sqlStr := "INSERT INTO short_comment(mid,uid, comment, post_time,star) values(?,?,?,?,?);"
+	sqlStr := "INSERT INTO short_comment(mid,uid, comment, post_time,star,static) values(?,?,?,?,?,?);"
 	Stmt, err := DB.Prepare(sqlStr)
-	_, err = Stmt.Exec(shortComment.Mid, shortComment.Uid, shortComment.Comment, shortComment.Time, shortComment.Star)
+	_, err = Stmt.Exec(shortComment.Mid, shortComment.Uid, shortComment.Comment, shortComment.Time, shortComment.Star, shortComment.Static)
 	return err
 	return nil
 }

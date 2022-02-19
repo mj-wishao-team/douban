@@ -10,6 +10,7 @@ type ShortComment struct {
 	Uid      int64
 	Avatar   string
 	Username string
+	Static   string
 	Comment  string
 	Time     time.Time
 	Help     int64

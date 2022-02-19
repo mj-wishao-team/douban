@@ -15,11 +15,10 @@ type CommentController struct {
 }
 
 func (C *CommentController) Router(engine *gin.Engine) {
-	engine.POST("api/movie/comment/put_short", JWTAuthMiddleware(), putMovieShortComment)
+	engine.POST("api/movie/comment/put_short/:mid", JWTAuthMiddleware(), putMovieShortComment)
 	engine.POST("api/movie/comment/put_large", JWTAuthMiddleware(), putMovieLargeComment)
 	engine.GET("api/movie/comment/get_short", getShortComment)
 	engine.GET("api/movie/comment/get_large", getLargeComment)
-	engine.GET("api/people/reviews", JWTAuthMiddleware(), GetSelfReviews)
 	engine.GET("api/movie/short_comment/:id/add_like", JWTAuthMiddleware(), addShortCommentLike)
 }
 
@@ -28,24 +27,15 @@ func addShortCommentLike(ctx *gin.Context) {
 
 }
 
-//获取自己的影评
-func GetSelfReviews(ctx *gin.Context) {
-	uid := ctx.MustGet("id").(int64)
-	Comment, err := service.GetLargeCommentByUid(uid)
-	if err != nil {
-		tool.RespErrorWithData(ctx, "获取评论失败")
-		fmt.Println("GetSelfReviews_GetLargeCommentByUid is ERR", err)
-		return
-	}
-	tool.RespSuccessfulWithData(ctx, Comment)
-}
-
 //发表短评
 func putMovieShortComment(ctx *gin.Context) {
 	movieId, err := strconv.ParseInt(ctx.Param("mid"), 10, 64)
 
 	uid := ctx.MustGet("id").(int64)
 	star, err := strconv.Atoi(ctx.PostForm("star"))
+
+	//想看or看过
+	MovieType := ctx.PostForm("type")
 
 	if err != nil {
 		tool.RespErrorWithData(ctx, "解析失败")
@@ -82,7 +72,14 @@ func putMovieShortComment(ctx *gin.Context) {
 		return
 	}
 
+	err = service.InsertMovieStatic(MovieType, uid, movieId)
+	if err != nil {
+		fmt.Println("InsertMovieStatic Is err", err)
+		tool.RespInternalError(ctx)
+		return
+	}
 	tool.RespSuccessfulWithData(ctx, "评论成功")
+
 }
 
 //获取短评
