@@ -484,7 +484,7 @@ func unbindPhone(ctx *gin.Context) {
 func bindPhone(ctx *gin.Context) {
 	var phoneParam param.Phone
 	err := ctx.ShouldBind(&phoneParam)
-	id := ctx.MustGet("id").(int64)
+
 	tool.CatchPanic(ctx, "bindPhone")
 
 	if phoneParam.Phone == "" {
@@ -502,38 +502,129 @@ func bindPhone(ctx *gin.Context) {
 		fmt.Println("binEmail_ParesePara ERR is :", err)
 		return
 	}
+	accessToken := ctx.PostForm("access_token")
+	refreshToken := ctx.PostForm("refresh_token")
 
-	//校验验证码
-	flag, err := service.JudgeVerifyCode(ctx, phoneParam.Phone, phoneParam.VerifyCode)
+	if accessToken != "" && refreshToken != "" {
+		Claims, flag, err := service.ParseToken(accessToken, refreshToken)
 
-	if err != nil {
-		tool.RespInternalError(ctx)
-		fmt.Println("bindPhone_JudgeVerifyCode ERR is :", err)
-		return
-	}
-
-	if flag {
-		//判断phone 是否被注册过
-		_, bool, err := service.JudgeAndQueryUserByPhone(phoneParam.Phone)
 		if err != nil {
-			fmt.Println("bindPhone_JudgeAndQueryUserByPhone ERR is :", err)
-			tool.RespInternalError(ctx)
+			tool.RespErrorWithData(ctx, "token错误")
+			fmt.Println("err", err)
 			return
 		}
-		if bool {
-			tool.RespErrorWithData(ctx, "手机号已经被其他账号绑定")
+		if flag {
+			accessToken, err := service.GenToken(Claims.User, 3600*24, "ACCESS_TOKEN")
+			if err != nil {
+				fmt.Println("JWTAuthMiddleware_CreateAccessTokenErr:", err)
+				tool.RespInternalError(ctx)
+				return
+			}
+
+			//refreshToken 一周
+			refreshToken, err := service.GenToken(Claims.User, 604800, "REFRESH_TOKEN")
+			if err != nil {
+				fmt.Println("JWTAuthMiddleware_CreateRefreshTokenErr:", err)
+				tool.RespInternalError(ctx)
+				return
+			}
+			//校验验证码
+			flag, err := service.JudgeVerifyCode(ctx, phoneParam.Phone, phoneParam.VerifyCode)
+
+			if err != nil {
+				tool.RespInternalError(ctx)
+				fmt.Println("bindPhone_JudgeVerifyCode ERR is :", err)
+				return
+			}
+
+			if flag {
+				//判断phone 是否被注册过
+				_, bool, err := service.JudgeAndQueryUserByPhone(phoneParam.Phone)
+				if err != nil {
+					fmt.Println("bindPhone_JudgeAndQueryUserByPhone ERR is :", err)
+					tool.RespInternalError(ctx)
+					return
+				}
+				if bool {
+					tool.RespErrorWithData(ctx, "手机号已经被其他账号绑定")
+					return
+				}
+				err = service.ChangePhone(phoneParam.Phone, Claims.User.Id)
+				if err != nil {
+					fmt.Println("bindPhone_ChangePhone ERR is :", err)
+					tool.RespInternalError(ctx)
+					return
+				}
+				ctx.JSON(http.StatusOK, gin.H{
+					"data":          "绑定成功",
+					"status":        "true",
+					"refresh_token": refreshToken,
+					"access_token":  accessToken,
+				})
+				return
+			} else {
+				ctx.JSON(http.StatusOK, gin.H{
+					"data":          "验证码错误或过期",
+					"status":        "true",
+					"refresh_token": refreshToken,
+					"access_token":  accessToken,
+				})
+				return
+			}
+
+		} else {
+			flag, err := service.JudgeVerifyCode(ctx, phoneParam.Phone, phoneParam.VerifyCode)
+
+			if err != nil {
+				tool.RespInternalError(ctx)
+				fmt.Println("bindPhone_JudgeVerifyCode ERR is :", err)
+				return
+			}
+
+			if flag {
+				//判断phone 是否被注册过
+				_, bool, err := service.JudgeAndQueryUserByPhone(phoneParam.Phone)
+				if err != nil {
+					fmt.Println("bindPhone_JudgeAndQueryUserByPhone ERR is :", err)
+					tool.RespInternalError(ctx)
+					return
+				}
+				if bool {
+					tool.RespErrorWithData(ctx, "手机号已经被其他账号绑定")
+					return
+				}
+				err = service.ChangePhone(phoneParam.Phone, Claims.User.Id)
+				if err != nil {
+					fmt.Println("bindPhone_ChangePhone ERR is :", err)
+					tool.RespInternalError(ctx)
+					return
+				}
+				ctx.JSON(http.StatusOK, gin.H{
+					"data":          "绑定成功",
+					"status":        "true",
+					"refresh_token": refreshToken,
+					"access_token":  accessToken,
+				})
+				return
+			} else {
+				ctx.JSON(http.StatusOK, gin.H{
+					"data":          "验证码错误或过期",
+					"status":        "true",
+					"refresh_token": refreshToken,
+					"access_token":  accessToken,
+				})
+				return
+			}
+			ctx.JSON(http.StatusOK, gin.H{
+				"data":          "验证码错误或过期",
+				"status":        "true",
+				"refresh_token": refreshToken,
+				"access_token":  accessToken,
+			})
 			return
 		}
-		err = service.ChangePhone(phoneParam.Phone, id)
-		if err != nil {
-			fmt.Println("bindPhone_ChangePhone ERR is :", err)
-			tool.RespInternalError(ctx)
-			return
-		}
-		tool.RespSuccessfulWithData(ctx, "绑定成功")
-		return
 	} else {
-		tool.RespErrorWithData(ctx, "验证码错误或者过期")
+		tool.RespErrorWithData(ctx, "请重新登录")
 		return
 	}
 
