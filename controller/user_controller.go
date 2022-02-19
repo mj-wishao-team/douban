@@ -33,7 +33,7 @@ func (u *UserController) Router(engine *gin.Engine) {
 	engine.PUT("/api/user/bind_email", JWTAuthMiddleware(), bindEmail)
 	engine.PUT("/api/user/unbind_email", JWTAuthMiddleware(), unbindEmail)
 
-	engine.PUT("/api/user/change_habitat", JWTAuthMiddleware(), changeHabitat)
+	engine.PUT("/api/user/change_habitat", changeHabitat)
 	engine.PUT("/api/user/change_account", changeAccount)
 	engine.PUT("/api/user/change_avatar", changeAvatar)
 
@@ -170,6 +170,7 @@ func changeAvatar(ctx *gin.Context) {
 
 //修改常常住地
 func changeHabitat(ctx *gin.Context) {
+
 	Id := ctx.MustGet("id").(int64)
 	tool.CatchPanic(ctx, "changeHabitat")
 	Habitat := ctx.PostForm("habitat")
@@ -185,66 +186,156 @@ func changeHabitat(ctx *gin.Context) {
 
 //修改账户信息
 func changeAccount(ctx *gin.Context) {
-	Id := ctx.MustGet("id").(int64)
-	tool.CatchPanic(ctx, "changeAccount")
-
 	var accountParam param.Account
 	err := ctx.ShouldBind(&accountParam)
 	if err != nil {
 		tool.RespErrorWithData(ctx, "参数解析失败")
 		return
 	}
+	accessToken := ctx.PostForm("access_token")
+	refreshToken := ctx.PostForm("refresh_token")
 
-	if accountParam.NewName != "" {
-		err := service.ChangeUserName(accountParam.NewName, Id)
+	if accessToken != "" && refreshToken != "" {
+		Claims, flag, err := service.ParseToken(accessToken, refreshToken)
+
 		if err != nil {
-			tool.RespErrorWithData(ctx, "修改失败")
-			fmt.Println("changeAccount_ChangeUserName is ERR :", err)
+			tool.RespErrorWithData(ctx, "token错误")
+			fmt.Println("err", err)
 			return
 		}
+		if flag {
+			accessToken, err := service.GenToken(Claims.User, 3600*24, "ACCESS_TOKEN")
+			if err != nil {
+				fmt.Println("JWTAuthMiddleware_CreateAccessTokenErr:", err)
+				tool.RespInternalError(ctx)
+				return
+			}
+
+			//refreshToken 一周
+			refreshToken, err := service.GenToken(Claims.User, 604800, "REFRESH_TOKEN")
+			if err != nil {
+				fmt.Println("JWTAuthMiddleware_CreateRefreshTokenErr:", err)
+				tool.RespInternalError(ctx)
+				return
+			}
+			if accountParam.NewName != "" {
+				err := service.ChangeUserName(accountParam.NewName, Claims.User.Id)
+				if err != nil {
+					tool.RespErrorWithData(ctx, "修改失败")
+					fmt.Println("changeAccount_ChangeUserName is ERR :", err)
+					return
+				}
+			}
+
+			if accountParam.Hometown != "" {
+				err := service.ChangeHometown(accountParam.Hometown, Claims.User.Id)
+				if err != nil {
+					tool.RespErrorWithData(ctx, "修改失败")
+					return
+				}
+			}
+
+			if accountParam.Birthday != "" {
+				Birthday, err := time.ParseInLocation("2006-01-02", accountParam.Birthday, time.Local)
+				if err != nil {
+					fmt.Println("changeAccount_ParseInLocationErr: ", err)
+					tool.RespErrorWithData(ctx, "日期格式错误")
+					return
+				}
+				err = service.ChangeBirthday(Birthday, Claims.User.Id)
+				if err != nil {
+					tool.RespErrorWithData(ctx, "修改失败")
+					return
+				}
+			}
+
+			if accountParam.HometownPublic != "" {
+				err := service.ChangeHometownPubic(accountParam.HometownPublic, Claims.User.Id)
+				if err != nil {
+					fmt.Println("changeAccount_ChangeHometownPubic ERR", err)
+					tool.RespErrorWithData(ctx, "修改失败")
+					return
+				}
+
+			}
+
+			if accountParam.BirthdayPublic != "" {
+				err := service.ChangeBirthdayPublic(accountParam.BirthdayPublic, Claims.User.Id)
+				if err != nil {
+					fmt.Println("changeAccount_ChangeBirthdayPublic ERR", err)
+					tool.RespErrorWithData(ctx, "修改失败")
+					return
+				}
+			}
+
+			ctx.JSON(http.StatusOK, gin.H{
+				"data":          "修改成功",
+				"status":        "true",
+				"refresh_token": refreshToken,
+				"access_token":  accessToken,
+			})
+
+		} else {
+			if accountParam.NewName != "" {
+				err := service.ChangeUserName(accountParam.NewName, Claims.User.Id)
+				if err != nil {
+					tool.RespErrorWithData(ctx, "修改失败")
+					fmt.Println("changeAccount_ChangeUserName is ERR :", err)
+					return
+				}
+			}
+
+			if accountParam.Hometown != "" {
+				err := service.ChangeHometown(accountParam.Hometown, Claims.User.Id)
+				if err != nil {
+					tool.RespErrorWithData(ctx, "修改失败")
+					return
+				}
+			}
+
+			if accountParam.Birthday != "" {
+				Birthday, err := time.ParseInLocation("2006-01-02", accountParam.Birthday, time.Local)
+				if err != nil {
+					fmt.Println("changeAccount_ParseInLocationErr: ", err)
+					tool.RespErrorWithData(ctx, "日期格式错误")
+					return
+				}
+				err = service.ChangeBirthday(Birthday, Claims.User.Id)
+				if err != nil {
+					tool.RespErrorWithData(ctx, "修改失败")
+					return
+				}
+			}
+
+			if accountParam.HometownPublic != "" {
+				err := service.ChangeHometownPubic(accountParam.HometownPublic, Claims.User.Id)
+				if err != nil {
+					fmt.Println("changeAccount_ChangeHometownPubic ERR", err)
+					tool.RespErrorWithData(ctx, "修改失败")
+					return
+				}
+
+			}
+
+			if accountParam.BirthdayPublic != "" {
+				err := service.ChangeBirthdayPublic(accountParam.BirthdayPublic, Claims.User.Id)
+				if err != nil {
+					fmt.Println("changeAccount_ChangeBirthdayPublic ERR", err)
+					tool.RespErrorWithData(ctx, "修改失败")
+					return
+				}
+			}
+			ctx.JSON(http.StatusOK, gin.H{
+				"data":          "修改成功",
+				"status":        "true",
+				"refresh_token": refreshToken,
+				"access_token":  accessToken,
+			})
+		}
+	} else {
+		tool.RespErrorWithData(ctx, "请重新登录")
 	}
 
-	if accountParam.Hometown != "" {
-		err := service.ChangeHometown(accountParam.Hometown, Id)
-		if err != nil {
-			tool.RespErrorWithData(ctx, "修改失败")
-			return
-		}
-	}
-
-	if accountParam.Birthday != "" {
-		Birthday, err := time.ParseInLocation("2006-01-02", accountParam.Birthday, time.Local)
-		if err != nil {
-			fmt.Println("changeAccount_ParseInLocationErr: ", err)
-			tool.RespErrorWithData(ctx, "日期格式错误")
-			return
-		}
-		err = service.ChangeBirthday(Birthday, Id)
-		if err != nil {
-			tool.RespErrorWithData(ctx, "修改失败")
-			return
-		}
-	}
-
-	if accountParam.HometownPublic != "" {
-		err := service.ChangeHometownPubic(accountParam.HometownPublic, Id)
-		if err != nil {
-			fmt.Println("changeAccount_ChangeHometownPubic ERR", err)
-			tool.RespErrorWithData(ctx, "修改失败")
-			return
-		}
-
-	}
-
-	if accountParam.BirthdayPublic != "" {
-		err := service.ChangeBirthdayPublic(accountParam.BirthdayPublic, Id)
-		if err != nil {
-			fmt.Println("changeAccount_ChangeBirthdayPublic ERR", err)
-			tool.RespErrorWithData(ctx, "修改失败")
-			return
-		}
-	}
-	tool.RespSuccessfulWithData(ctx, "修改成功")
 }
 
 //注销账号
