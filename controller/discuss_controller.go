@@ -16,9 +16,9 @@ type DiscussController struct {
 
 func (D *DiscussController) Router(engine *gin.Engine) {
 	engine.POST("api/movie/discussion/put_discuss", JWTAuthMiddleware(), putDiscuss)
-	engine.DELETE("api/movie/dicussion/delele_discuss", deleteDiscuss)
-	engine.PUT("api/movie/discussion/updata", updateDiscuss)
-	engine.POST("api/movie/discussion/:id/like", discussLike)
+	engine.DELETE("api/movie/dicussion/delele_discuss", JWTAuthMiddleware(), deleteDiscuss)
+	engine.PUT("api/movie/discussion/updata", JWTAuthMiddleware(), updateDiscuss)
+	engine.POST("api/movie/discussion/:id/like", JWTAuthMiddleware(), discussLike)
 	engine.GET("api/movie/discussion/:mid", GetDiscussionList)
 	engine.GET("api/movie/discussion/:mid/:id", GetDiscussion)
 }

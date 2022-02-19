@@ -3,18 +3,18 @@ package service
 import (
 	"douban/dao"
 	"douban/model"
-	"fmt"
 	"strconv"
+	"strings"
 )
 
 //搜索电影
-func SearchMovies(word string) ([]model.Movie, error) {
+func SearchMovies(word string) ([]model.MovieList, error) {
 	Movies, err := dao.SearchMovies(word)
 	return Movies, err
 }
 
 //获取单个电影信息
-func GetMovieById(id int64) ([]model.Movie, error) {
+func GetMovieById(id int64) (model.Movie, error) {
 	movies, err := dao.GetMovieById(id)
 	return movies, err
 }
@@ -34,60 +34,88 @@ func JudgeMovie(Mid int64) (bool, error) {
 }
 
 var orderWay = map[string]string{
-	"latest":       "release_time DESC",
+	"latest":       "date DESC",
 	"hotest":       "score DESC",
 	"reply_number": "reply_number DESC",
 	"time":         "time DESC",
 }
 
 //选电影
-func GetMovieListByTag(tag string, sort string, limit int) ([]model.MovieList, error) {
-	ML, err := dao.GetSortMovieByTags(tag, orderWay[sort], limit)
+func GetMovieListByTag(tag string, sort string, start int) ([]model.MovieList, error) {
+	ML, err := dao.SelectSubjectsByTag(tag, orderWay[sort], start)
 	return ML, err
 }
 
 //电影排行榜
-func GetMovieLeaderboard(limit int) ([]model.MovieList, error) {
-	MovieList, err := dao.GetMovieLeaderboard(limit)
+func GetMovieLeaderboard(start int) ([]model.MovieList, error) {
+	MovieList, err := dao.GetMovieLeaderboard(start)
 	return MovieList, err
 }
 
 //影片评价
-func ChangeMovieScoreById(id int64, star int) error {
+func UpdateSubjectScore(mid int64, score int) (err error) {
 
-	number, score, err := dao.QueryByMovie(id)
-	starStr := strconv.Itoa(star)
-	Star, err := strconv.ParseFloat(starStr, 64)
-	NewScore := (score*number + Star) / (number + 1)
-
-	err = dao.UpdateMovieScore(NewScore, id)
+	movie, err := GetMovieById(mid)
 	if err != nil {
-		fmt.Println("Score is ERR ", err)
 		return err
 	}
-
-	err = dao.IncreaseMoviePeople(id)
+	Score, err := strconv.ParseFloat(movie.Score.Score, 64)
 	if err != nil {
-		fmt.Println("People is ERR", err)
 		return err
 	}
+	Totalcnt := float64(movie.Score.TotalCnt)
+	NewScore := (Totalcnt*Score + float64(score)*2) / (Totalcnt + 1)
+	NewScoreStr := strconv.FormatFloat(NewScore, 'f', 2, 64)
 
-	switch star {
+	var NewMovieScore = model.MovieScore{
+		Score:    NewScoreStr,
+		TotalCnt: int(Totalcnt + 1),
+		Five:     movie.Score.Five,
+		Four:     movie.Score.Four,
+		Three:    movie.Score.Three,
+		Two:      movie.Score.Two,
+		One:      movie.Score.One,
+	}
+
+	switch score {
 	case 1:
-		err = dao.IncreaseOneStar(id)
+		NewMovieScore.One, err = parsePctToNewPct(movie.Score.One, Totalcnt)
+		if err != nil {
+			return err
+		}
 	case 2:
-		err = dao.IncreaseTwoStar(id)
+		NewMovieScore.Two, err = parsePctToNewPct(movie.Score.Two, Totalcnt)
+		if err != nil {
+			return err
+		}
 	case 3:
-		err = dao.IncreaseThreeStar(id)
+		NewMovieScore.Three, err = parsePctToNewPct(movie.Score.Three, Totalcnt)
+		if err != nil {
+			return err
+		}
 	case 4:
-		err = dao.IncreaseFourStar(id)
+		NewMovieScore.Four, err = parsePctToNewPct(movie.Score.Four, Totalcnt)
+		if err != nil {
+			return err
+		}
 	case 5:
-		err = dao.IncreaseFiveStar(id)
-	}
-	if err != nil {
-		fmt.Println("Star is err", err)
-		return err
+		NewMovieScore.Five, err = parsePctToNewPct(movie.Score.Five, Totalcnt)
+		if err != nil {
+			return err
+		}
 	}
 
-	return err
+	err = dao.UpdateSubjectScore(mid, NewMovieScore)
+
+	return
+}
+
+func parsePctToNewPct(v string, Totalcnt float64) (per string, err error) {
+	v = strings.Replace(v, "%", "", -1)
+	v = "0." + v
+	ret, err := strconv.ParseFloat(v, 64)
+	if err != nil {
+		return v, err
+	}
+	return (strings.TrimLeft(strconv.FormatFloat((ret*Totalcnt+1)/(Totalcnt+1), 'f', 2, 64), "0.") + "%"), err
 }

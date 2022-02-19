@@ -2,261 +2,141 @@ package dao
 
 import (
 	"douban/model"
+	"encoding/json"
+	"strings"
 )
 
-func SearchMovies(word string) ([]model.Movie, error) {
-	var movies []model.Movie
-	var movie model.Movie
-
-	sqlStr := "SELECT id,name,poster,director,screenwriter,starring,type,tag,country,language,release_time,duration,alias,imdb,age, score,peoples,one_star,two_star,three_star,four_star,five_star FROM movie WHERE name LIKE '%?%' "
-	Stmt, err := DB.Prepare(sqlStr)
-
-	defer Stmt.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := Stmt.Query(word)
-
-	for rows.Next() {
-		err = rows.Scan(
-			&movie.Id,
-			&movie.Name,
-			&movie.Poster,
-			&movie.Director,
-			&movie.ScreenWriter,
-			&movie.Starring,
-			&movie.Type,
-			&movie.Tag,
-			&movie.Country,
-			&movie.Language,
-			&movie.ReleaseTime,
-			&movie.Duration,
-			&movie.Alias,
-			&movie.Imdb,
-			&movie.Age,
-			&movie.Score,
-			&movie.Peoples,
-			&movie.OneStar,
-			&movie.TwoStar,
-			&movie.ThreeStar,
-			&movie.FourStar,
-			&movie.FiveStar,
-		)
-		if err != nil {
-			return nil, err
-		}
-		movies = append(movies, movie)
-	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	return movies, err
-
-}
-func GetMovieById(id int64) ([]model.Movie, error) {
-	var movies []model.Movie
-	var movie model.Movie
-
-	sqlStr := "SELECT id,name,poster,director,screenwriter,starring,type,tag,country,language,release_time,duration,alias,imdb,age, score,peoples,one_star,two_star,three_star,four_star,five_star FROM movie WHERE id= ? "
-	Stmt, err := DB.Prepare(sqlStr)
-
-	defer Stmt.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	row := Stmt.QueryRow(id)
-	if row.Err() != nil {
-		return nil, row.Err()
-	}
-
-	err = row.Scan(
-		&movie.Id,
-		&movie.Name,
-		&movie.Poster,
-		&movie.Director,
-		&movie.ScreenWriter,
-		&movie.Starring,
-		&movie.Type,
-		&movie.Tag,
-		&movie.Country,
-		&movie.Language,
-		&movie.ReleaseTime,
-		&movie.Duration,
-		&movie.Alias,
-		&movie.Imdb,
-		&movie.Age,
-		&movie.Score,
-		&movie.Peoples,
-		&movie.OneStar,
-		&movie.TwoStar,
-		&movie.ThreeStar,
-		&movie.FourStar,
-		&movie.FiveStar,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	movies = append(movies, movie)
-	return movies, err
-}
-
-//查询电影评分
-func QueryByMovie(id int64) (float64, float64, error) {
-	var Score, Number float64
-
-	sqlStr := "SELECT score,peoples FROM movie WHERE id= ? "
-	Stmt, err := DB.Prepare(sqlStr)
-	defer Stmt.Close()
-
-	if err != nil {
-		return 0, 0, err
-	}
-
-	row := Stmt.QueryRow(id)
-	if row.Err() != nil {
-		return 0, 0, row.Err()
-	}
-
-	err = row.Scan(&Score, &Number)
-	if err != nil {
-		return 0, 0, err
-	}
-
-	return Score, Number, nil
-}
-
 //电影排行榜
-func GetMovieLeaderboard(limit int) ([]model.MovieList, error) {
-	var MovieLists []model.MovieList
-
-	sqlStr := "SELECT id,name, poster, score FROM movie ORDER BY score DESC LIMIT ?;"
+func GetMovieLeaderboard(start int) (movieLists []model.MovieList, err error) {
+	var movieList model.MovieList
+	var Detail, Score string
+	sqlStr := "SELECT name, score, avatar, mid, tags, detail FROM movie ORDER BY stars LIMIT 20 OFFSET ?"
 
 	Stmt, err := DB.Prepare(sqlStr)
 
 	defer Stmt.Close()
 
 	if err != nil {
-		return nil, err
+		return
 	}
+	rows, err := Stmt.Query(start)
 
-	rows, err := Stmt.Query(limit)
+	for rows.Next() {
+		err = rows.Scan(&movieList.Name, &Score, &movieList.Avatar, &movieList.Mid, &movieList.Tags, &Detail)
+		if err != nil {
+			return
+		}
+		err = json.Unmarshal([]byte(Detail), &movieList.Detail)
+		if err != nil {
+			return
+		}
+		err = json.Unmarshal([]byte(Score), &movieList.Score)
+		if err != nil {
+			return
+		}
+		movieLists = append(movieLists, movieList)
+	}
+	return
+}
+
+//分类找电影
+func SelectSubjectsByTag(tag, sort string, start int) (movieLists []model.MovieList, err error) {
+
+	var movieList model.MovieList
+	sqlStr := "SELECT name, score, avatar, mid, tags, detail FROM movie WHERE tags LIKE '%{}%'"
+	sqlStr = strings.Replace(sqlStr, "{tag}", tag, -1)
+	sqlStr = sqlStr + " ORDER BY " + sort + " LIMIT 20 OFFSET ?"
+
+	Stmt, err := DB.Prepare(sqlStr)
+	defer Stmt.Close()
 
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	if rows.Err() != nil {
-		return nil, rows.Err()
+	rows, err := Stmt.Query(start)
+	if err != nil {
+		return
 	}
 
 	for rows.Next() {
-		var MovieList model.MovieList
-		err = rows.Scan(&MovieList.Id, &MovieList.Name, &MovieList.Poster, &MovieList.Score)
+		err = rows.Scan(&movieList.Name, &movieList.Name, &movieList.Avatar, &movieList.Mid, &movieList.Tags, &movieList.Detail)
 		if err != nil {
-			return nil, err
+			return
 		}
-
-		MovieLists = append(MovieLists, MovieList)
+		movieLists = append(movieLists, movieList)
 	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	return MovieLists, nil
+	return
 }
 
-//选电影
-func GetSortMovieByTags(tag string, sortWay string, limit int) ([]model.MovieList, error) {
-	var MovieLists []model.MovieList
+//搜索电影
+func SearchMovies(key string) (movieLists []model.MovieList, err error) {
+	var movieList model.MovieList
+	sqlStr := "SELECT name, score, avatar, mid, tags, detail FROM movie WHERE name LIKE '%{}%'"
+	rows, err := DB.Query(strings.Replace(sqlStr, "{}", key, -1))
+	if err != nil {
+		return
+	}
 
-	sqlStr := "SELECT id,name, poster, score FROM movie WHERE tags LIKE '%?%'"
-	sqlStr = sqlStr + "ORDER BY " + sortWay + "limit ?"
+	for rows.Next() {
+		err = rows.Scan(&movieList.Name, &movieList.Name, &movieList.Avatar, &movieList.Mid, &movieList.Tags, &movieList.Detail)
+		if err != nil {
+			return
+		}
+		movieLists = append(movieLists, movieList)
+	}
+	return
+}
+
+//获取单个电影的信息
+func GetMovieById(mid int64) (movie model.Movie, err error) {
+	sqlStr := "SELECT mid, tags, date, stars, name, avatar, detail, score, plot, celebrities FROM movie WHERE mid = ?"
+
 	Stmt, err := DB.Prepare(sqlStr)
 
 	defer Stmt.Close()
 
 	if err != nil {
-		return nil, err
+		return
 	}
-
-	rows, err := Stmt.Query(tag, limit)
-
-	if rows.Err() != nil {
-		return nil, rows.Err()
-	}
-
-	for rows.Next() {
-		var MovieList model.MovieList
-		err = rows.Scan(&MovieList.Id, &MovieList.Name, &MovieList.Poster, &MovieList.Score)
-		if err != nil {
-			return nil, err
-		}
-
-		MovieLists = append(MovieLists, MovieList)
-	}
-
+	row := Stmt.QueryRow(mid)
+	var detail, score, celebrities string
+	err = row.Scan(
+		&movie.Mid,
+		&movie.Tags,
+		&movie.Date,
+		&movie.Stars,
+		&movie.Name,
+		&movie.Avatar,
+		&detail,
+		&score,
+		&movie.Plot,
+		&celebrities,
+	)
+	err = json.Unmarshal([]byte(detail), &movie.Detail)
 	if err != nil {
-		return nil, err
+		return
+	}
+	err = json.Unmarshal([]byte(score), &movie.Score)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal([]byte(celebrities), &movie.Celebrities)
+	return
+}
+
+//跟新得分
+func UpdateSubjectScore(mid int64, score model.MovieScore) (err error) {
+	sqlStr := "UPDATE movie SET score = ? WHERE mid = ?"
+
+	scoreB, err := json.Marshal(score)
+	if err != nil {
+		return
 	}
 
-	return MovieLists, nil
-}
-
-//跟新电影评分
-func UpdateMovieScore(Score float64, id int64) error {
-	sqlStr := "update  movie  set  score=? where id = ? ;"
 	Stmt, err := DB.Prepare(sqlStr)
-	_, err = Stmt.Exec(Score, id)
-	return err
 
-}
+	_, err = Stmt.Exec(string(scoreB), mid)
 
-//增加电影评论人数
-func IncreaseMoviePeople(id int64) error {
-	sqlStr := "update  movie  set  peoples=peoples+ 1  where id = ? ;"
-	Stmt, err := DB.Prepare(sqlStr)
-	_, err = Stmt.Exec(id)
-	return err
-}
-
-//评价
-func IncreaseOneStar(id int64) error {
-	sqlStr := "update  movie  set  one_star=one_star+ 1  where id = ? ;"
-	Stmt, err := DB.Prepare(sqlStr)
-	_, err = Stmt.Exec(id)
-	return err
-}
-
-func IncreaseTwoStar(id int64) error {
-	sqlStr := "update  movie  set  two_star=two_star+ 1  where id = ? ;"
-	Stmt, err := DB.Prepare(sqlStr)
-	_, err = Stmt.Exec(id)
-	return err
-}
-
-func IncreaseThreeStar(id int64) error {
-	sqlStr := "update  movie  set  three_star=three_star+ 1  where id = ? ;"
-	Stmt, err := DB.Prepare(sqlStr)
-	_, err = Stmt.Exec(id)
-	return err
-}
-
-func IncreaseFourStar(id int64) error {
-	sqlStr := "update  movie  set  four_star=four_star+ 1  where id = ? ;"
-	Stmt, err := DB.Prepare(sqlStr)
-	_, err = Stmt.Exec(id)
-	return err
-}
-
-func IncreaseFiveStar(id int64) error {
-	sqlStr := "update  movie  set  five_star=five_star+ 1  where id = ? ;"
-	Stmt, err := DB.Prepare(sqlStr)
-	_, err = Stmt.Exec(id)
 	return err
 }

@@ -12,15 +12,15 @@ type MovieController struct {
 }
 
 func (M *MovieController) Router(engine *gin.Engine) {
-	engine.GET("api/movie/subject/:id", getMovie)
-	engine.GET("api/movie", GetMovieList)
-	engine.GET("api/movie/explore", GetMovieListByTag)
-	engine.GET("api/movie/chart", getMovieLeaderboard)
+	engine.GET("/api/movie/subject/:id", getMovie)
+	engine.GET("/api/movie", GetMovieList)
+	engine.GET("/api/movie/explore", GetMovieListByTag)
+	engine.GET("/api/movie/chart", getMovieLeaderboard)
 }
 
 //获取单个电影信息
 func getMovie(ctx *gin.Context) {
-	Id, err := strconv.ParseInt(ctx.Query("id"), 10, 64)
+	Id, err := strconv.ParseInt(ctx.Param("start"), 10, 64)
 	if err != nil {
 		tool.RespErrorWithData(ctx, err)
 		fmt.Println("getMovie_ParseInt ERR is", err)
@@ -41,10 +41,10 @@ func GetMovieListByTag(ctx *gin.Context) {
 	tag := ctx.PostForm("tag")
 	//分类
 	sort := ctx.PostForm("sort")
-	//个数限制
-	limit, _ := strconv.Atoi(ctx.PostForm("limit"))
+	//从第几行开始
+	start, _ := strconv.Atoi(ctx.PostForm("start"))
 
-	MovieList, err := service.GetMovieListByTag(tag, sort, limit)
+	MovieList, err := service.GetMovieListByTag(tag, sort, start)
 	if err != nil {
 		tool.RespErrorWithData(ctx, "未找到相关条件")
 		return
@@ -59,6 +59,17 @@ func GetMovieList(ctx *gin.Context) {
 
 //排行榜
 func getMovieLeaderboard(ctx *gin.Context) {
-	var limit int = 20
-	service.GetMovieLeaderboard(limit)
+	start, err := strconv.Atoi(ctx.PostForm("start"))
+	if err != nil {
+		tool.RespErrorWithData(ctx, "解析失败")
+		fmt.Println("Parase Is ERR ", err)
+		return
+	}
+	ML, err := service.GetMovieLeaderboard(start)
+	if err != nil {
+		tool.RespInternalError(ctx)
+		fmt.Println("GetMovieLeaderboard Is ERR", err)
+		return
+	}
+	tool.RespSuccessfulWithData(ctx, ML)
 }
