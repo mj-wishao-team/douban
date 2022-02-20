@@ -7,7 +7,6 @@ import (
 	"douban/tool"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -35,7 +34,7 @@ func (u *UserController) Router(engine *gin.Engine) {
 
 	engine.PUT("/api/user/change_habitat", changeHabitat)
 	engine.PUT("/api/user/change_account", changeAccount)
-	engine.PUT("/api/user/change_avatar", changeAvatar)
+	engine.POST("/api/user/change_avatar", JWTAuthMiddleware(), changeAvatar)
 
 	engine.DELETE("/api/user/suicide", suicideAccount)
 }
@@ -116,7 +115,8 @@ func changeAvatar(ctx *gin.Context) {
 
 	img, err := ctx.FormFile("avatar")
 
-	Id, err := strconv.ParseInt(ctx.PostForm("id"), 10, 64)
+	//Id, err := strconv.ParseInt(ctx.PostForm("id"), 10, 64)
+	Id := ctx.MustGet("id").(int64)
 
 	if err != nil {
 		fmt.Println("FormFileErr: ", err)
@@ -130,21 +130,8 @@ func changeAvatar(ctx *gin.Context) {
 		return
 	}
 	file, err := img.Open()
-	//判断文件格式
-	fileByte, err := ioutil.ReadAll(file)
-	if err != nil {
-		tool.RespInternalError(ctx)
-		fmt.Println(err)
-	}
 
-	fileFormat := tool.GetFileType(fileByte)
-
-	if fileFormat == "" {
-		tool.RespErrorWithData(ctx, "头像格式无效")
-		return
-	}
-
-	filePath := "/avatar/" + strconv.FormatInt(Id, 10) + "." + fileFormat
+	filePath := "/avatar/" + tool.CreateUUID() + "." + strings.Split(img.Filename, `.`)[1]
 
 	//上传头像
 	err = service.UploadAvatar(file, filePath)
@@ -164,9 +151,10 @@ func changeAvatar(ctx *gin.Context) {
 		tool.RespInternalError(ctx)
 		return
 	}
-
-	tool.RespSuccessfulWithData(ctx, "修改成功")
-
+	ctx.JSON(200, gin.H{
+		"data":   "修改成功",
+		"avatar": url,
+	})
 }
 
 //修改常常住地
