@@ -5,7 +5,8 @@ import (
 	"douban/model"
 )
 
-func GetMyLook(uid int64, str string) ([]model.MovieStatic, error) {
-	MS, err := dao.GetMyLook(uid, str)
+func GetMyLook(uid int64) ([]model.MovieStatic, error) {
+	MS, err := dao.GetMyLook(uid)
+
 	return MS, err
 }

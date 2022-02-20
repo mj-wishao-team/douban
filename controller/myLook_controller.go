@@ -35,7 +35,6 @@ func GetMyLookMovieHome(ctx *gin.Context) {
 			if err != nil {
 				fmt.Println("JWTAuthMiddleware_CreateAccessTokenErr:", err)
 				tool.RespInternalError(ctx)
-				ctx.Abort()
 				return
 			}
 
@@ -44,28 +43,25 @@ func GetMyLookMovieHome(ctx *gin.Context) {
 			if err != nil {
 				fmt.Println("JWTAuthMiddleware_CreateRefreshTokenErr:", err)
 				tool.RespInternalError(ctx)
-				ctx.Abort()
 				return
 			}
 
-			MSWantLook, err := service.GetMyLook(Claims.User.Id, "想看")
-			MSSeen, err := service.GetMyLook(Claims.User.Id, "看过")
+			MSSeen, err := service.GetMyLook(Claims.User.Id)
 
-			if err != nil {
+			if err != nil && err.Error() != "sql: no rows in result set" {
 				fmt.Println("GetMyLook Is ERR", err)
 				tool.RespInternalError(ctx)
 				return
 			}
 
 			Reviews, err := service.GetLargeCommentByUid(Claims.User.Id)
-			if err != nil {
+			if err != nil && err.Error() != "sql: no rows in result set" {
 				tool.RespErrorWithData(ctx, "影评获取失败")
 				fmt.Println("GetLargeCommentByUid err is", err)
 				return
 			}
 			ctx.JSON(http.StatusOK, gin.H{
-				"看过":            MSSeen,
-				"想看":            MSWantLook,
+				"Movies":        MSSeen,
 				"影评":            Reviews,
 				"status":        "true",
 				"refresh_token": refreshToken,
@@ -74,29 +70,25 @@ func GetMyLookMovieHome(ctx *gin.Context) {
 
 		} else {
 
-			MSWantLook, err := service.GetMyLook(Claims.User.Id, "想看")
-			fmt.Println("111111")
+			//MSWantLook, err := service.GetMyLook(Claims.User.Id, "想看")
 
-			MSSeen, err := service.GetMyLook(Claims.User.Id, "看过")
-			fmt.Println("111111")
+			MSSeen, err := service.GetMyLook(Claims.User.Id)
 
-			if err != nil {
+			if err != nil && err.Error() != "sql: no rows in result set" {
 				fmt.Println("GetMyLook Is ERR", err)
 				tool.RespInternalError(ctx)
 				return
 			}
 
 			Reviews, err := service.GetLargeCommentByUid(Claims.User.Id)
-			fmt.Println("111111")
-
-			if err != nil {
+			if err != nil && err.Error() != "sql: no rows in result set" {
 				tool.RespErrorWithData(ctx, "影评获取失败")
 				fmt.Println("GetLargeCommentByUid err is", err)
 				return
 			}
+
 			ctx.JSON(http.StatusOK, gin.H{
-				"看过":            MSSeen,
-				"想看":            MSWantLook,
+				"Movies":        MSSeen,
 				"影评":            Reviews,
 				"status":        "true",
 				"refresh_token": refreshToken,
