@@ -7,6 +7,7 @@ import (
 	"douban/tool"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -135,6 +136,20 @@ func changeAvatar(ctx *gin.Context) {
 
 	//上传头像
 	err = service.UploadAvatar(file, filePath)
+
+	fileByte, err := ioutil.ReadAll(file)
+	if err != nil {
+		tool.RespInternalError(ctx)
+		fmt.Println(err)
+	}
+
+	fileFormat := tool.GetFileType(fileByte)
+
+	if fileFormat == "" {
+		tool.RespErrorWithData(ctx, "头像格式无效")
+		return
+	}
+
 	if err != nil {
 		fmt.Println("UploadAvatarErr: ", err)
 		tool.RespInternalError(ctx)
