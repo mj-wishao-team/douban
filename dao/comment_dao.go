@@ -4,10 +4,65 @@ import (
 	"douban/model"
 )
 
+//点赞短评
+func UpdateCommentLike(id int64, like int) error {
+	sqlStr := "UPDATE short_comment SET help=help+? WHERE id = ?"
+	stmt, err := DB.Prepare(sqlStr)
+	defer stmt.Close()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(like, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+//点赞影评
+func UpdateReviewLike(id int64, like int) error {
+	if like == -1 {
+		sqlStr := "UPDATE large_comment SET unlike=unlike+1 WHERE id = ?"
+		stmt, err := DB.Prepare(sqlStr)
+		defer stmt.Close()
+
+		if err != nil {
+			return err
+		}
+
+		_, err = stmt.Exec(id)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	} else {
+		sqlStr := "UPDATE large_comment SET likes=likes+1 WHERE id = ?"
+		stmt, err := DB.Prepare(sqlStr)
+		defer stmt.Close()
+
+		if err != nil {
+			return err
+		}
+
+		_, err = stmt.Exec(id)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+}
+
+//获取影评
 func GetMovieReviews(mid int64) ([]model.LargeComment, error) {
 	var commentSlice []model.LargeComment
 
-	stmt, err := DB.Prepare(`SELECT l.id, l.mid, u.avatar,u.username,l.uid,l.title, l.comment, l.time,l.likes,l.unlike,l.star,l.report FROM large_comment l JOIN user u ON l.uid=u.id AND l.mid=? ORDER BY l.likes LIMIT 10 `)
+	stmt, err := DB.Prepare(`SELECT l.id, l.mid, u.avatar,u.username,l.uid,l.title, l.comment, l.time,l.likes,l.unlike,l.star FROM large_comment l JOIN user u ON l.uid=u.id AND l.mid=? ORDER BY l.likes LIMIT 10 `)
 	if err != nil {
 		return nil, err
 	}
@@ -21,7 +76,7 @@ func GetMovieReviews(mid int64) ([]model.LargeComment, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var commentModel model.LargeComment
-		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Avatar, &commentModel.Username, &commentModel.Uid, &commentModel.Title, &commentModel.Comment, &commentModel.Time, &commentModel.Likes, &commentModel.Unlikes, &commentModel.Star, &commentModel.Report)
+		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Avatar, &commentModel.Username, &commentModel.Uid, &commentModel.Title, &commentModel.Comment, &commentModel.Time, &commentModel.Likes, &commentModel.Unlikes, &commentModel.Star)
 		if err != nil {
 			return nil, err
 		}
@@ -70,10 +125,12 @@ func InsertShortComment(shortComment model.ShortComment) error {
 
 //插入影评论
 func InsertLargeComment(largeComment model.LargeComment) error {
-	sqlStr := "INSERT INTO short_comment(mid,uid,title,comment, post_time,star) values(?,?,?,?,?,?);"
+	sqlStr := "INSERT INTO large_comment(mid,uid,title,comment,time,star) values(?,?,?,?,?,?);"
 	Stmt, err := DB.Prepare(sqlStr)
 	_, err = Stmt.Exec(largeComment.Mid, largeComment.Uid, largeComment.Title, largeComment.Comment, largeComment.Time, largeComment.Star)
-	return err
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -81,7 +138,7 @@ func InsertLargeComment(largeComment model.LargeComment) error {
 func QueryShortCommentByMid(mid int64) ([]model.ShortComment, error) {
 	var commentSlice []model.ShortComment
 
-	stmt, err := DB.Prepare(`SELECT s.id, s.mid, s.uid,u.avatar,u.username, s.comment, s.post_time,s.help,s.star,s.report FROM short_comment s JOIN user u ON s.uid=u.id AND s.mid=?`)
+	stmt, err := DB.Prepare(`SELECT s.id, s.mid, s.uid,u.avatar,u.username, s.comment, s.post_time,s.help,s.star,s.static FROM short_comment s JOIN user u ON s.uid=u.id AND s.mid=?`)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +152,7 @@ func QueryShortCommentByMid(mid int64) ([]model.ShortComment, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var commentModel model.ShortComment
-		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Uid, &commentModel.Avatar, &commentModel.Username, &commentModel.Comment, &commentModel.Time, &commentModel.Help, &commentModel.Star, &commentModel.Report)
+		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Uid, &commentModel.Avatar, &commentModel.Username, &commentModel.Comment, &commentModel.Time, &commentModel.Help, &commentModel.Star, &commentModel.Static)
 		if err != nil {
 			return nil, err
 		}
@@ -107,7 +164,7 @@ func QueryShortCommentByMid(mid int64) ([]model.ShortComment, error) {
 
 func GetMovieComment(mid int64) ([]model.ShortComment, error) {
 	var commentSlice []model.ShortComment
-	stmt, err := DB.Prepare(`SELECT s.id, s.mid, s.uid,u.avatar,u.username, s.comment, s.post_time,s.help,s.star,s.report FROM short_comment s JOIN user u ON s.uid=u.id AND s.mid=? ORDER BY s.help LIMIT 10 `)
+	stmt, err := DB.Prepare(`SELECT s.id, s.mid, s.uid,u.avatar,u.username, s.comment, s.post_time,s.help,s.star ,s.static FROM short_comment s JOIN user u ON s.uid=u.id AND s.mid=? ORDER BY s.help LIMIT 10 `)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +178,7 @@ func GetMovieComment(mid int64) ([]model.ShortComment, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var commentModel model.ShortComment
-		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Uid, &commentModel.Avatar, &commentModel.Username, &commentModel.Comment, &commentModel.Time, &commentModel.Help, &commentModel.Star, &commentModel.Report)
+		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Uid, &commentModel.Avatar, &commentModel.Username, &commentModel.Comment, &commentModel.Time, &commentModel.Help, &commentModel.Star, &commentModel.Static)
 		if err != nil {
 			return nil, err
 		}
@@ -135,7 +192,7 @@ func GetMovieComment(mid int64) ([]model.ShortComment, error) {
 func QueryLargeCommentByMid(mid int64) ([]model.LargeComment, error) {
 	var commentSlice []model.LargeComment
 
-	stmt, err := DB.Prepare(`SELECT l.id, l.mid, u.avatar,u.username,l.uid,l.title, l.comment, l.time,l.likes,l.unlike,l.star,l.report FROM large_comment l JOIN user u ON l.uid=u.id AND l.mid=?`)
+	stmt, err := DB.Prepare(`SELECT l.id, l.mid, u.avatar,u.username,l.uid,l.title, l.comment, l.time,l.likes,l.unlike,l.star FROM large_comment l JOIN user u ON l.uid=u.id AND l.mid=?`)
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +206,7 @@ func QueryLargeCommentByMid(mid int64) ([]model.LargeComment, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var commentModel model.LargeComment
-		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Avatar, &commentModel.Username, &commentModel.Uid, &commentModel.Title, &commentModel.Comment, &commentModel.Time, &commentModel.Likes, &commentModel.Unlikes, &commentModel.Star, &commentModel.Report)
+		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Avatar, &commentModel.Username, &commentModel.Uid, &commentModel.Title, &commentModel.Comment, &commentModel.Time, &commentModel.Likes, &commentModel.Unlikes, &commentModel.Star)
 		if err != nil {
 			return nil, err
 		}
@@ -162,7 +219,7 @@ func QueryLargeCommentByMid(mid int64) ([]model.LargeComment, error) {
 func QueryLargeCommentByUid(uid int64) ([]model.LargeComment, error) {
 	var commentSlice []model.LargeComment
 
-	stmt, err := DB.Prepare(`SELECT id, mid, uid,title, comment, time,likes,unlike,star,report FROM large_comment WHERE uid= ?`)
+	stmt, err := DB.Prepare(`SELECT id, mid, uid,title, comment, time,likes,unlike,star FROM large_comment WHERE uid= ?`)
 	if err != nil {
 		return nil, err
 	}
@@ -176,7 +233,7 @@ func QueryLargeCommentByUid(uid int64) ([]model.LargeComment, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var commentModel model.LargeComment
-		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Uid, &commentModel.Title, &commentModel.Comment, &commentModel.Time, &commentModel.Likes, &commentModel.Unlikes, &commentModel.Star, &commentModel.Report)
+		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Uid, &commentModel.Title, &commentModel.Comment, &commentModel.Time, &commentModel.Likes, &commentModel.Unlikes, &commentModel.Star)
 		if err != nil {
 			return nil, err
 		}

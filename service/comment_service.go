@@ -5,6 +5,18 @@ import (
 	"douban/model"
 )
 
+//短评点赞
+func UpdateCommentLike(id int64, like int) error {
+	err := dao.UpdateCommentLike(id, like)
+	return err
+}
+
+//影评点赞
+func UpdateReviewLike(id int64, like int) error {
+	err := dao.UpdateReviewLike(id, like)
+	return err
+}
+
 //获取短评
 func GetShortCommentByUidAndMid(uid, mid int64) ([]model.ShortComment, error) {
 	SC, err := dao.GetShortCommentByUidAndMid(uid, mid)
@@ -48,8 +60,5 @@ func GetMovieReviews(mid int64) ([]model.LargeComment, error) {
 //获取自己的影评
 func GetLargeCommentByUid(Uid int64) ([]model.LargeComment, error) {
 	Comment, err := dao.QueryLargeCommentByUid(Uid)
-	if err.Error() == "sql: no rows in result set" {
-		return nil, nil
-	}
 	return Comment, err
 }
