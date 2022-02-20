@@ -113,7 +113,8 @@ func accountManagement(ctx *gin.Context) {
 
 //修改头像
 func changeAvatar(ctx *gin.Context) {
-	file, header, err := ctx.Request.FormFile("avatar")
+
+	img, err := ctx.FormFile("avatar")
 
 	Id, err := strconv.ParseInt(ctx.PostForm("id"), 10, 64)
 
@@ -124,11 +125,11 @@ func changeAvatar(ctx *gin.Context) {
 	}
 
 	//大小限制2Mb
-	if header.Size > (2 << 20) {
+	if img.Size > (2 << 20) {
 		tool.RespErrorWithData(ctx, "头像文件过大")
 		return
 	}
-
+	file, err := img.Open()
 	//判断文件格式
 	fileByte, err := ioutil.ReadAll(file)
 	if err != nil {
@@ -143,7 +144,7 @@ func changeAvatar(ctx *gin.Context) {
 		return
 	}
 
-	filePath := strconv.FormatInt(Id, 10) + ".png"
+	filePath := "/avatar/" + strconv.FormatInt(Id, 10) + "." + fileFormat
 
 	//上传头像
 	err = service.UploadAvatar(file, filePath)
@@ -154,7 +155,7 @@ func changeAvatar(ctx *gin.Context) {
 	}
 
 	cfg := tool.GetCfg().Cos
-	url := cfg.AvatarUrl + "/" + filePath
+	url := cfg.AvatarUrl + filePath
 
 	//头像入数据库
 	err = service.ChangeAvatar(url, Id)
@@ -967,7 +968,7 @@ func login(ctx *gin.Context) {
 	if flag {
 		// 生成AceessToken 和RefreshToken
 		//accessToken 5分钟
-		accessToken, err := service.GenToken(User, 300, "ACCESS_TOKEN")
+		accessToken, err := service.GenToken(User, 60*24, "ACCESS_TOKEN")
 		if err != nil {
 			fmt.Println("CreateAccessTokenErr:", err)
 			tool.RespInternalError(ctx)
@@ -1069,7 +1070,7 @@ func loginBySms(ctx *gin.Context) {
 
 		// 生成AceessToken 和RefreshToken
 		//accessToken 5分钟
-		accessToken, err := service.GenToken(User, 300, "ACCESS_TOKEN")
+		accessToken, err := service.GenToken(User, 60*24, "ACCESS_TOKEN")
 		if err != nil {
 			fmt.Println("CreateAccessTokenErr:", err)
 			tool.RespInternalError(ctx)
