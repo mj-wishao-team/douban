@@ -25,6 +25,7 @@ func (C *CommentController) Router(engine *gin.Engine) {
 
 	engine.PUT("api/movie/review/like/:id", JWTAuthMiddleware(), updateLikeReview)
 	engine.PUT("api/movie/comment/like/:id", JWTAuthMiddleware(), updateLikeComment)
+
 }
 
 //获取单个影评接口

@@ -9,9 +9,9 @@ func main() {
 
 	router := gin.Default()
 	router.Use(controller.Cors())
+	router.Static("./static", "./static")
 	routerEngine(router)
 	router.Run(":9090")
-
 }
 
 func routerEngine(engine *gin.Engine) {
