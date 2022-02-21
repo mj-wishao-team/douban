@@ -15,7 +15,8 @@ type ReplyController struct {
 }
 
 func (C *ReplyController) Router(engine *gin.Engine) {
-
+	engine.GET("/api/movie/reply/:id", GetReply)
+	engine.POST("/api/movie/reply/post", JWTAuthMiddleware(), ReplyPost)
 }
 
 //TODO
@@ -28,7 +29,7 @@ func GetReply(ctx *gin.Context) {
 		return
 	}
 	kind := ctx.Query("type")
-	if kind != "review" && kind != "discussion" && kind != "comment" && kind != "reply" {
+	if kind != "review" && kind != "discussion" && kind != "reply" {
 		tool.RespErrorWithData(ctx, "类型错误")
 		return
 	}

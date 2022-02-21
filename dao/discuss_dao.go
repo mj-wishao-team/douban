@@ -59,7 +59,7 @@ func InsertDiscussion(discussion model.Discussion) error {
 //获取讨论列表
 func GetDiscussionList(sort string, mid int64) (DiscussionLists []model.DiscussionList, err error) {
 	var DiscussionList model.DiscussionList
-	sqlStr := "SELECT id,mid,username,title, time ,reply FROM discussion WHERE mid=? ORDER BY " + sort
+	sqlStr := "SELECT id,mid,username,title, time ,people FROM discussion WHERE mid=? ORDER BY " + sort
 
 	Stmt, err := DB.Prepare(sqlStr)
 

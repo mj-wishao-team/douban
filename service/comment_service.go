@@ -75,6 +75,14 @@ func GetLargeCommentSlice(mid int64) ([]model.LargeComment, error) {
 func GetMovieReviews(mid int64) ([]model.LargeComment, error) {
 	commentSlice, err := dao.GetMovieReviews(mid)
 	return commentSlice, err
+
+}
+
+//获取单个影评
+func GetReview(id int64) (model.LargeComment, error) {
+	LC, err := dao.GetReview(id)
+	return LC, err
+
 }
 
 //获取自己的影评

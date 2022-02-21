@@ -19,8 +19,10 @@ func (D *DiscussController) Router(engine *gin.Engine) {
 	engine.DELETE("api/movie/dicussion/delele_discuss", JWTAuthMiddleware(), deleteDiscuss)
 	engine.PUT("api/movie/discussion/updata", JWTAuthMiddleware(), updateDiscuss)
 	engine.POST("api/movie/discussion/:id/like", JWTAuthMiddleware(), discussLike)
-	engine.GET("api/movie/discussion/:mid", GetDiscussionList)
-	engine.GET("api/movie/discussion/:mid/:id", GetDiscussion)
+
+	engine.GET("api/movie/discussions/:mid", GetDiscussionList)
+
+	engine.GET("api/movie/discussion/:id", GetDiscussion)
 }
 
 //发表讨论
@@ -87,10 +89,12 @@ func GetDiscussion(ctx *gin.Context) {
 		fmt.Println("GetDiscussion is ERR ", err)
 		return
 	}
+	reply, err := service.GetReply(id, "discussion", 1)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"Discussion": Discussion,
-		"Reply":      nil,
+		"Reply":      reply,
+		"data":       "true",
 	})
 }
 

@@ -27,6 +27,7 @@ type LargeComment struct {
 	Title    string
 	Comment  string
 	Time     time.Time
+	People   int
 	Likes    int64
 	Unlikes  int64
 	Report   int64

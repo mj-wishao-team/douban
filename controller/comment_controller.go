@@ -19,10 +19,41 @@ func (C *CommentController) Router(engine *gin.Engine) {
 	engine.POST("api/movie/review/put", JWTAuthMiddleware(), putMovieLargeComment)
 
 	engine.GET("api/movie/comment/:mid", getShortComment)
-	engine.GET("api/movie/review/:mid", getLargeComment)
+	engine.GET("api/movie/reviews/:mid", getLargeComment)
+
+	engine.GET("api/movie/review/:id", getReview)
 
 	engine.PUT("api/movie/review/like/:mid", updateLikeReview)
 	engine.PUT("api/movie/comment/like/:mid", updateLikeComment)
+}
+
+//获取单个影评接口
+func getReview(ctx *gin.Context) {
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if err != nil {
+		tool.RespErrorWithData(ctx, "解析失败")
+		return
+	}
+	commentSlice, err := service.GetReview(id)
+
+	if err.Error() == "sql: no rows in result set" {
+		tool.RespErrorWithData(ctx, "评论id不存在")
+		return
+	}
+
+	if err != nil && err.Error() != "sql: no rows in result set" {
+		tool.RespInternalError(ctx)
+		fmt.Println("getLargeComment_GetLargeCommentSlice Err is", err)
+		return
+	}
+	reply, err := service.GetReply(id, "review", 1)
+
+	ctx.JSON(200, gin.H{
+		"review": commentSlice,
+		"reply":  reply,
+		"data":   "true",
+	})
+
 }
 
 //短评点赞
