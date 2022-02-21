@@ -101,14 +101,11 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 				"data":          "Token Refresh Success",
 				"access_token":  accessToken,
 				"refresh_token": refreshToken,
+				"token":         accessToken + " " + refreshToken,
 			})
+			return
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{
-			"data":          "Token not refresh",
-			"access_token":  parts[1],
-			"refresh_token": parts[2],
-		})
 		ctx.Set("id", Clams.User.Id)
 		ctx.Set("username", Clams.User.Username)
 		ctx.Next()

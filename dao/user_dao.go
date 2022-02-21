@@ -211,10 +211,10 @@ func QueryUserByID(id int64) (model.User, error) {
 }
 
 //根据ID查询UserInfo信息
-func QueryUserInfoByID(id int64) (model.UserInfo, error) {
+func QueryUserInfoByID(id int64) (UserInfo model.UserInfo, err error) {
 	user := model.UserInfo{}
 
-	sqlStr := "SELECT id,username,email,phone,avatar,domain_name,habitat,hometown,birthday,statement,followers,followings FROM user WHERE id= ? "
+	sqlStr := "SELECT id,username,email,phone,avatar,domain_name,habitat,hometown,birthday,statement,followers,followings,regdate FROM user WHERE id= ? "
 	Stmt, err := DB.Prepare(sqlStr)
 	defer Stmt.Close()
 
@@ -227,7 +227,7 @@ func QueryUserInfoByID(id int64) (model.UserInfo, error) {
 		return user, row.Err()
 	}
 
-	err = row.Scan(&user.Id, &user.Username, &user.Email, &user.Phone, &user.Avatar, &user.DomainName, &user.Habitat, &user.Username, &user.Birthday, &user.Statement, &user.Followers, &user.Followings)
+	err = row.Scan(&user.Id, &user.Username, &user.Email, &user.Phone, &user.Avatar, &user.DomainName, &user.Habitat, &user.Hometown, &user.Birthday, &user.Statement, &user.Followers, &user.Followings, &user.RegDate)
 	if err != nil {
 		return user, err
 	}
