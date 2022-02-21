@@ -5,6 +5,26 @@ import (
 	"douban/model"
 )
 
+//增加影评回复人数
+func UpdateReviewCNT(id int64) error {
+	err := dao.UpdateReviewCNT(id)
+	return err
+}
+
+//增加讨论回复人数
+func UpdateDiscussionCNT(id int64) error {
+	err := dao.UpdateDiscussionCNT(id)
+	return err
+
+}
+
+//增加回复的回复人数
+func UpdateReplyCNT(id int64) error {
+	err := dao.UpdateReplyCNT(id)
+	return err
+
+}
+
 //短评点赞
 func UpdateCommentLike(id int64, like int) error {
 	err := dao.UpdateCommentLike(id, like)

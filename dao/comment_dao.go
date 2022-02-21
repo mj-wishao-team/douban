@@ -4,6 +4,58 @@ import (
 	"douban/model"
 )
 
+//增加影评的回复人数
+func UpdateReviewCNT(id int64) error {
+	sqlStr := "UPDATE large_comment SET people=people+1 WHERE id = ?"
+	stmt, err := DB.Prepare(sqlStr)
+	defer stmt.Close()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+//增加讨论的回复人数
+
+func UpdateDiscussionCNT(id int64) error {
+	sqlStr := "UPDATE reply SET people=people+1 WHERE id = ?"
+	stmt, err := DB.Prepare(sqlStr)
+	defer stmt.Close()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+//增加回复的回复人数
+func UpdateReplyCNT(id int64) error {
+	sqlStr := "UPDATE discussion SET people=people+1 WHERE id = ?"
+	stmt, err := DB.Prepare(sqlStr)
+	defer stmt.Close()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 //点赞短评
 func UpdateCommentLike(id int64, like int) error {
 	sqlStr := "UPDATE short_comment SET help=help+? WHERE id = ?"

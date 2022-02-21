@@ -58,7 +58,7 @@ func ReplyPost(ctx *gin.Context) {
 		return
 	}
 	kind := ctx.PostForm("type")
-	if kind != "review" && kind != "discussion" && kind != "comment" && kind != "reply" {
+	if kind != "review" && kind != "discussion" && kind != "reply" {
 		tool.RespErrorWithData(ctx, "type 格式错误")
 		return
 	}
@@ -76,6 +76,31 @@ func ReplyPost(ctx *gin.Context) {
 		fmt.Println(err)
 		tool.RespErrorWithData(ctx, "回复失败")
 		return
+	}
+
+	switch kind {
+	case "review":
+		err = service.UpdateReviewCNT(pid)
+		if err != nil {
+			fmt.Println(err)
+			tool.RespErrorWithData(ctx, "增加回复人数失败")
+			return
+		}
+	case "reply":
+		err := service.UpdateReplyCNT(pid)
+		if err != nil {
+			fmt.Println(err)
+			tool.RespErrorWithData(ctx, "增加回复人数失败")
+			return
+		}
+	case "discussion":
+		err := service.UpdateDiscussionCNT(pid)
+		if err != nil {
+			fmt.Println(err)
+			tool.RespErrorWithData(ctx, "增加回复人数失败")
+			return
+		}
+
 	}
 
 	tool.RespSuccessfulWithData(ctx, "回复成功")

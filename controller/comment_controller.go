@@ -6,6 +6,7 @@ import (
 	"douban/tool"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"html"
 	"strconv"
 	"time"
 )
@@ -82,6 +83,7 @@ func putMovieShortComment(ctx *gin.Context) {
 		fmt.Println("putMovieShortComment is ERR", err)
 		return
 	}
+
 	MovieType := ctx.PostForm("type")
 
 	star, err := strconv.Atoi(ctx.PostForm("star"))
@@ -93,7 +95,7 @@ func putMovieShortComment(ctx *gin.Context) {
 	}
 	//想看or看过
 
-	shortComment := ctx.PostForm("comment")
+	shortComment := html.UnescapeString(html.EscapeString(ctx.PostForm("comment")))
 
 	if err != nil {
 		fmt.Println("putMovieShortComment_ParseInt ERR is ", err)
@@ -167,7 +169,8 @@ func putMovieLargeComment(ctx *gin.Context) {
 		return
 	}
 
-	largeComment := ctx.PostForm("comment")
+	//防止xxs 注入
+	largeComment := html.UnescapeString(html.EscapeString(ctx.PostForm("comment")))
 
 	if err != nil {
 		fmt.Println("putMovieShortComment_ParseInt ERR is ", err)
