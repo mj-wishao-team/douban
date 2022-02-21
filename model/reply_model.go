@@ -7,7 +7,7 @@ type Reply struct {
 	Uid      int64
 	Pid      int64
 	Like     int
-	Petable  string
+	Ptable   string
 	Date     time.Time
 	Username string
 	Content  string

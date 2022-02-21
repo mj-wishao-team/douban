@@ -1,11 +1,14 @@
 package controller
 
 import (
+	"douban/model"
 	"douban/service"
 	"douban/tool"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"html"
 	"strconv"
+	"time"
 )
 
 type ReplyController struct {
@@ -47,5 +50,36 @@ func GetReply(ctx *gin.Context) {
 }
 
 //发布回复
+func ReplyPost(ctx *gin.Context) {
+
+	pid, err := strconv.ParseInt(ctx.PostForm("pid"), 10, 64)
+	if err != nil {
+		tool.RespErrorWithData(ctx, "pid 格式错误")
+		return
+	}
+	kind := ctx.PostForm("type")
+	if kind != "review" && kind != "discussion" && kind != "comment" && kind != "reply" {
+		tool.RespErrorWithData(ctx, "type 格式错误")
+		return
+	}
+
+	Reply := model.Reply{
+		Uid:     ctx.MustGet("id").(int64),
+		Pid:     pid,
+		Ptable:  kind,
+		Date:    time.Now(),
+		Content: html.UnescapeString(html.EscapeString(ctx.PostForm("value"))),
+	}
+
+	err = service.ReplyPost(Reply)
+	if err != nil {
+		fmt.Println(err)
+		tool.RespErrorWithData(ctx, "回复失败")
+		return
+	}
+
+	tool.RespSuccessfulWithData(ctx, "回复成功")
+
+}
 
 //删除回复
