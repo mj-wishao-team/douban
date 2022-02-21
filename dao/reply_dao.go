@@ -4,7 +4,7 @@ import "douban/model"
 
 func GetReply(id int64, kind string, start int) (Replys []model.Reply, err error) {
 	var reply model.Reply
-	stmt, err := DB.Prepare(`SELECT r.id ,r.uid,r.ptable ,r.value ,r.pid,r.people,r.like,r.time,u.avatar,u.username FROM reply r JOIN user u ON r.uid=u.id AND s.pid=? AND r.ptable=?  ORDER BY like  LIMIT 20 OFFSET ?`)
+	stmt, err := DB.Prepare(`SELECT r.id ,r.uid,r.ptable ,r.value,r.pid,r.people,r.likes,r.time,u.avatar,u.username FROM reply r JOIN user u ON r.uid=u.id AND r.pid=? AND r.ptable=?  ORDER BY likes LIMIT 20 OFFSET ?`)
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +27,7 @@ func GetReply(id int64, kind string, start int) (Replys []model.Reply, err error
 }
 
 func ReplyPost(reply model.Reply) error {
-	sqlStr := "INSERT INTO reply(uid, pid, ptable, time , content) VALUES(?, ?, ?, ?, ?)"
+	sqlStr := "INSERT INTO reply(uid, pid, ptable, time , value) VALUES(?, ?, ?, ?, ?)"
 	stmt, err := DB.Prepare(sqlStr)
 	if err != nil {
 		return err

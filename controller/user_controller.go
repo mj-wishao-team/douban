@@ -20,12 +20,12 @@ type UserController struct {
 func (u *UserController) Router(engine *gin.Engine) {
 
 	engine.GET("/api/user/get_user", getUerInfo)
-	engine.POST("/api/user/get_user/:uid", JWTAuthMiddleware(), accountManagement)
 
 	engine.POST("/api/verify/sms", sendSms)
 	engine.POST("/api/user/register", register)
 	engine.POST("/api/user/login/sms", loginBySms)
 	engine.POST("/api/user/login/pw", login)
+
 	engine.POST("/api/verify/emial", SendEmail)
 
 	engine.PUT("/api/user/unbind_phone", unbindPhone)
@@ -33,9 +33,9 @@ func (u *UserController) Router(engine *gin.Engine) {
 	engine.PUT("/api/user/bind_email", bindEmail)
 	engine.PUT("/api/user/unbind_email", JWTAuthMiddleware(), unbindEmail)
 
-	engine.PUT("/api/user/change_habitat", changeHabitat)
+	engine.PUT("/api/user/change_habitat", JWTAuthMiddleware(), changeHabitat)
 	engine.PUT("/api/user/change_account", changeAccount)
-	engine.POST("/api/user/change_avatar", JWTAuthMiddleware(), changeAvatar)
+	engine.PUT("/api/user/change_avatar", JWTAuthMiddleware(), changeAvatar)
 
 	engine.DELETE("/api/user/suicide", suicideAccount)
 }
@@ -104,11 +104,6 @@ func getUerInfo(ctx *gin.Context) {
 	} else {
 		tool.RespErrorWithData(ctx, "请重新登录")
 	}
-}
-
-//账号管理
-func accountManagement(ctx *gin.Context) {
-
 }
 
 //修改头像
@@ -971,7 +966,7 @@ func login(ctx *gin.Context) {
 	if flag {
 		// 生成AceessToken 和RefreshToken
 		//accessToken 5分钟
-		accessToken, err := service.GenToken(User, 60*24, "ACCESS_TOKEN")
+		accessToken, err := service.GenToken(User, 6000, "ACCESS_TOKEN")
 		if err != nil {
 			fmt.Println("CreateAccessTokenErr:", err)
 			tool.RespInternalError(ctx)
@@ -1073,7 +1068,7 @@ func loginBySms(ctx *gin.Context) {
 
 		// 生成AceessToken 和RefreshToken
 		//accessToken 5分钟
-		accessToken, err := service.GenToken(User, 60*24, "ACCESS_TOKEN")
+		accessToken, err := service.GenToken(User, 6000, "ACCESS_TOKEN")
 		if err != nil {
 			fmt.Println("CreateAccessTokenErr:", err)
 			tool.RespInternalError(ctx)

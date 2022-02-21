@@ -15,16 +15,16 @@ type CommentController struct {
 }
 
 func (C *CommentController) Router(engine *gin.Engine) {
-	engine.POST("api/movie/comment/:mid", JWTAuthMiddleware(), putMovieShortComment)
+	engine.POST("api/movie/comment/put", JWTAuthMiddleware(), putMovieShortComment)
 	engine.POST("api/movie/review/put", JWTAuthMiddleware(), putMovieLargeComment)
 
-	engine.GET("api/movie/comment/:mid", getShortComment)
+	engine.GET("api/movie/comments/:mid", getShortComment)
 	engine.GET("api/movie/reviews/:mid", getLargeComment)
 
 	engine.GET("api/movie/review/:id", getReview)
 
-	engine.PUT("api/movie/review/like/:mid", updateLikeReview)
-	engine.PUT("api/movie/comment/like/:mid", updateLikeComment)
+	engine.PUT("api/movie/review/like/:id", JWTAuthMiddleware(), updateLikeReview)
+	engine.PUT("api/movie/comment/like/:id", JWTAuthMiddleware(), updateLikeComment)
 }
 
 //获取单个影评接口
@@ -36,17 +36,12 @@ func getReview(ctx *gin.Context) {
 	}
 	commentSlice, err := service.GetReview(id)
 
-	if err.Error() == "sql: no rows in result set" {
-		tool.RespErrorWithData(ctx, "评论id不存在")
-		return
-	}
-
-	if err != nil && err.Error() != "sql: no rows in result set" {
+	if err != nil {
 		tool.RespInternalError(ctx)
 		fmt.Println("getLargeComment_GetLargeCommentSlice Err is", err)
 		return
 	}
-	reply, err := service.GetReply(id, "review", 1)
+	reply, err := service.GetReply(id, "review", 0)
 
 	ctx.JSON(200, gin.H{
 		"review": commentSlice,
@@ -105,7 +100,7 @@ func updateLikeReview(ctx *gin.Context) {
 
 //发表短评
 func putMovieShortComment(ctx *gin.Context) {
-	movieId, err := strconv.ParseInt(ctx.Param("mid"), 10, 64)
+	movieId, err := strconv.ParseInt(ctx.PostForm("mid"), 10, 64)
 	uid := ctx.MustGet("id").(int64)
 	//fmt.Println(uid)
 

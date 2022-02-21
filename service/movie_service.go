@@ -41,10 +41,10 @@ func JudgeMovie(Mid int64) (bool, error) {
 }
 
 var orderWay = map[string]string{
-	"latest":       "date DESC",
-	"hotest":       "stars DESC",
-	"reply_number": "reply_number DESC",
-	"time":         "time DESC",
+	"latest": "date DESC",
+	"hotest": "stars DESC",
+	"host":   "people DESC",
+	"time":   "time DESC",
 }
 
 //选电影

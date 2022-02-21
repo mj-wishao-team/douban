@@ -21,4 +21,6 @@ func routerEngine(engine *gin.Engine) {
 	new(controller.CelebrityController).Router(engine)
 	new(controller.SearchController).Router(engine)
 	new(controller.MyLookController).Router(engine)
+	new(controller.DiscussController).Router(engine)
+	new(controller.ReplyController).Router(engine)
 }

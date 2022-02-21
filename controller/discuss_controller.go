@@ -15,10 +15,10 @@ type DiscussController struct {
 }
 
 func (D *DiscussController) Router(engine *gin.Engine) {
-	engine.POST("api/movie/discussion/put_discuss", JWTAuthMiddleware(), putDiscuss)
-	engine.DELETE("api/movie/dicussion/delele_discuss", JWTAuthMiddleware(), deleteDiscuss)
+	engine.POST("/api/movie/discussion/put_discuss", JWTAuthMiddleware(), putDiscuss)
+	engine.DELETE("api/movie/dicussion/delele_discuss/:id", JWTAuthMiddleware(), deleteDiscuss)
 	engine.PUT("api/movie/discussion/updata", JWTAuthMiddleware(), updateDiscuss)
-	engine.POST("api/movie/discussion/:id/like", JWTAuthMiddleware(), discussLike)
+	engine.POST("api/movie/discussion/like/:id", JWTAuthMiddleware(), discussLike)
 
 	engine.GET("api/movie/discussions/:mid", GetDiscussionList)
 
@@ -35,13 +35,12 @@ func putDiscuss(ctx *gin.Context) {
 	}
 
 	Discussions := model.Discussion{
-		Uid:      ctx.MustGet("id").(int64),
-		Mid:      mid,
-		UserName: ctx.MustGet("username").(string),
-		Title:    ctx.PostForm("tile"),
-		Value:    ctx.PostForm("value"),
-		Date:     time.Now(),
-		Stars:    0,
+		Uid:   ctx.MustGet("id").(int64),
+		Mid:   mid,
+		Title: ctx.PostForm("title"),
+		Value: ctx.PostForm("value"),
+		Date:  time.Now(),
+		Stars: 0,
 	}
 
 	err = service.PutDiscussion(Discussions)
@@ -50,6 +49,7 @@ func putDiscuss(ctx *gin.Context) {
 		fmt.Println("PutDiscusion is ERR ", err)
 		return
 	}
+	tool.RespSuccessfulWithData(ctx, "发布成功")
 }
 
 //获取讨论列表
@@ -57,7 +57,7 @@ func GetDiscussionList(ctx *gin.Context) {
 	//分类获取 默认为热度排名
 	sort := ctx.PostForm("sort")
 
-	mid, err := strconv.ParseInt(ctx.PostForm("mid"), 10, 64)
+	mid, err := strconv.ParseInt(ctx.Param("mid"), 10, 64)
 	if err != nil {
 		tool.RespErrorWithData(ctx, "解析错误")
 		fmt.Println("", err)
@@ -106,6 +106,12 @@ func deleteDiscuss(ctx *gin.Context) {
 		fmt.Println("deleteDiscuss is ERR ", err)
 		return
 	}
+	Discussion, err := service.GetDiscussion(id)
+
+	if Discussion.Uid != ctx.MustGet("id").(int64) {
+		tool.RespErrorWithData(ctx, "不是本用户")
+		return
+	}
 	err = service.DeleteDisucuss(id)
 
 	if err != nil {
@@ -119,7 +125,7 @@ func deleteDiscuss(ctx *gin.Context) {
 
 //跟新讨论
 func updateDiscuss(ctx *gin.Context) {
-	mid, err := strconv.ParseInt(ctx.PostForm("mid"), 10, 64)
+	id, err := strconv.ParseInt(ctx.PostForm("id"), 10, 64)
 	if err != nil {
 		tool.RespErrorWithData(ctx, "解析错误")
 		fmt.Println("", err)
@@ -127,8 +133,8 @@ func updateDiscuss(ctx *gin.Context) {
 	}
 
 	Discussions := model.Discussion{
+		Id:       id,
 		Uid:      ctx.MustGet("id").(int64),
-		Mid:      mid,
 		UserName: ctx.MustGet("username").(string),
 		Title:    ctx.PostForm("tile"),
 		Value:    ctx.PostForm("value"),
@@ -147,5 +153,17 @@ func updateDiscuss(ctx *gin.Context) {
 
 //点赞or取消
 func discussLike(ctx *gin.Context) {
-
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if err != nil {
+		tool.RespErrorWithData(ctx, "解析错误")
+		fmt.Println("", err)
+		return
+	}
+	err = service.DiscussLike(id)
+	if err != nil {
+		fmt.Println(err)
+		tool.RespErrorWithData(ctx, "点赞失败")
+		return
+	}
+	tool.RespSuccessfulWithData(ctx, "点赞成功")
 }

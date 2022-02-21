@@ -14,8 +14,7 @@ type MyLookController struct {
 func (M *MyLookController) Router(engine *gin.Engine) {
 
 	engine.GET("/api/movie/mine", GetMyLookMovieHome)
-	engine.GET("/api/people/reviews", GetSelfReviews)
-	engine.GET("/api/people/wishe", GetSelfReviews)
+	engine.GET("/api/people/reviews", JWTAuthMiddleware(), GetSelfReviews)
 }
 
 //获取我的电影主页

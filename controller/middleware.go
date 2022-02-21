@@ -76,7 +76,7 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 		// accessToken 已经失效，需要刷新双Token
 		if flag {
 
-			accessToken, err := service.GenToken(Clams.User, 300, "ACCESS_TOKEN")
+			accessToken, err := service.GenToken(Clams.User, 60000, "ACCESS_TOKEN")
 			if err != nil {
 				fmt.Println("JWTAuthMiddleware_CreateAccessTokenErr:", err)
 				tool.RespInternalError(ctx)
@@ -85,7 +85,7 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 			}
 
 			//refreshToken 一周
-			refreshToken, err := service.GenToken(Clams.User, 604800, "REFRESH_TOKEN")
+			refreshToken, err := service.GenToken(Clams.User, 6048000, "REFRESH_TOKEN")
 			if err != nil {
 				fmt.Println("JWTAuthMiddleware_CreateRefreshTokenErr:", err)
 				tool.RespInternalError(ctx)
@@ -104,10 +104,10 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 				"token":         accessToken + " " + refreshToken,
 			})
 			return
+
 		}
 
 		ctx.Set("id", Clams.User.Id)
-		ctx.Set("username", Clams.User.Username)
 		ctx.Next()
 	}
 

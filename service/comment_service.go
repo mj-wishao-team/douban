@@ -79,7 +79,7 @@ func GetMovieReviews(mid int64) ([]model.LargeComment, error) {
 }
 
 //获取单个影评
-func GetReview(id int64) (model.LargeComment, error) {
+func GetReview(id int64) ([]model.LargeComment, error) {
 	LC, err := dao.GetReview(id)
 	return LC, err
 

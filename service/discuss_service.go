@@ -18,7 +18,7 @@ func GetDiscussionList(sort string, mid int64) ([]model.DiscussionList, error) {
 }
 
 //获取讨论
-func GetDiscussion(id int64) ([]model.Discussion, error) {
+func GetDiscussion(id int64) (model.Discussion, error) {
 	Discussion, err := dao.GetDiscussion(id)
 	return Discussion, err
 }
@@ -32,5 +32,11 @@ func DeleteDisucuss(id int64) error {
 //跟新讨论
 func UpdateDiscussion(discussion model.Discussion) error {
 	err := dao.UpdateDiscussion(discussion)
+	return err
+}
+
+//讨论点赞
+func DiscussLike(id int64) error {
+	err := dao.DiscussLike(id)
 	return err
 }

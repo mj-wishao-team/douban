@@ -269,27 +269,28 @@ func QueryLargeCommentByMid(mid int64) ([]model.LargeComment, error) {
 }
 
 //获取单个影评
-func GetReview(id int64) (model.LargeComment, error) {
-	var commentModel model.LargeComment
+func GetReview(id int64) (commentModels []model.LargeComment, err error) {
 
 	stmt, err := DB.Prepare(`SELECT l.id, l.mid, u.avatar,u.username,l.uid,l.title, l.comment, l.time,l.likes,l.unlike,l.star,l.people FROM large_comment l JOIN user u ON l.uid=u.id AND l.id=?`)
 	if err != nil {
-		return commentModel, err
+		return nil, err
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.Query(id)
 	if err != nil {
-		return commentModel, err
+		return nil, err
 	}
 
-	err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Avatar, &commentModel.Username, &commentModel.Uid, &commentModel.Title, &commentModel.Comment, &commentModel.Time, &commentModel.Likes, &commentModel.Unlikes, &commentModel.Star, &commentModel.People)
-	if err != nil {
-		return commentModel, err
-
+	for rows.Next() {
+		var commentModel model.LargeComment
+		err = rows.Scan(&commentModel.Id, &commentModel.Mid, &commentModel.Avatar, &commentModel.Username, &commentModel.Uid, &commentModel.Title, &commentModel.Comment, &commentModel.Time, &commentModel.Likes, &commentModel.Unlikes, &commentModel.Star, &commentModel.People)
+		if err != nil {
+			return nil, err
+		}
+		commentModels = append(commentModels, commentModel)
 	}
-
-	return commentModel, nil
+	return commentModels, nil
 
 }
 

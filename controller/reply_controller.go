@@ -34,20 +34,21 @@ func GetReply(ctx *gin.Context) {
 		return
 	}
 	//一般都是1
-	start, err := strconv.Atoi(ctx.Query("start"))
+	start, err := strconv.Atoi(ctx.PostForm("start"))
 	if err != nil {
-		start = 0
-
+		tool.RespErrorWithData(ctx, "start 错误")
+		fmt.Println(err)
+		return
 	}
 	Reply, err := service.GetReply(id, kind, start)
 
-	if err != nil && err.Error() != "sql: no rows in result set" {
+	if err != nil {
 		fmt.Println(err)
 		tool.RespErrorWithData(ctx, "获取评论失败")
 		return
 	}
 	tool.RespSuccessfulWithData(ctx, Reply)
-
+	//&& err.Error() != "sql: no rows in result set"
 }
 
 //发布回复
