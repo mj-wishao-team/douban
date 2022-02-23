@@ -1,6 +1,9 @@
 package dao
 
-import "douban/model"
+import (
+	"douban/model"
+	"errors"
+)
 
 func GetReply(id int64, kind string, start int) (Replys []model.Reply, err error) {
 	var reply model.Reply
@@ -34,5 +37,52 @@ func ReplyPost(reply model.Reply) error {
 	}
 	defer stmt.Close()
 	_, err = stmt.Exec(reply.Uid, reply.Pid, reply.Ptable, reply.Date, reply.Content)
+	return err
+}
+
+//采用事务处理
+func PostReply(reply model.Reply) error {
+	tx, err := DB.Begin()
+	if err != nil {
+		return err
+	}
+	var sqlStr2 string
+
+	sqlStr1 := "INSERT INTO reply(uid, pid, ptable, time , value) VALUES(?, ?, ?, ?, ?)"
+
+	switch reply.Ptable {
+	case "review":
+		sqlStr2 = "UPDATE large_comment SET people=people+1 WHERE id=?"
+	case "comment":
+		sqlStr2 = "UPDATE short_comment SET people=people+1 WHERE id=?"
+	case "discussion":
+		sqlStr2 = "UPDATE discussion SET people=people+1 WHERE id=?"
+	default:
+		return errors.New("ptable类型错误")
+	}
+
+	stmt1, err := tx.Prepare(sqlStr1)
+	if err != nil {
+		return err
+	}
+	_, err = stmt1.Exec(reply.Uid, reply.Pid, reply.Ptable, reply.Date, reply.Content)
+
+	//回滚事务
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	stmt2, err := tx.Prepare(sqlStr2)
+	if err != nil {
+		return err
+	}
+	_, err = stmt2.Exec(reply.Pid)
+	//回滚事务
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
 	return err
 }

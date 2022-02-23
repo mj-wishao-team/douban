@@ -80,30 +80,30 @@ func ReplyPost(ctx *gin.Context) {
 		return
 	}
 
-	switch kind {
-	case "review":
-		err = service.UpdateReviewCNT(pid)
-		if err != nil {
-			fmt.Println(err)
-			tool.RespErrorWithData(ctx, "增加回复人数失败")
-			return
-		}
-	case "reply":
-		err := service.UpdateReplyCNT(pid)
-		if err != nil {
-			fmt.Println(err)
-			tool.RespErrorWithData(ctx, "增加回复人数失败")
-			return
-		}
-	case "discussion":
-		err := service.UpdateDiscussionCNT(pid)
-		if err != nil {
-			fmt.Println(err)
-			tool.RespErrorWithData(ctx, "增加回复人数失败")
-			return
-		}
-
-	}
+	//switch kind {
+	//case "review":
+	//	err = service.UpdateReviewCNT(pid)
+	//	if err != nil {
+	//		fmt.Println(err)
+	//		tool.RespErrorWithData(ctx, "增加回复人数失败")
+	//		return
+	//	}
+	//case "reply":
+	//	err := service.UpdateReplyCNT(pid)
+	//	if err != nil {
+	//		fmt.Println(err)
+	//		tool.RespErrorWithData(ctx, "增加回复人数失败")
+	//		return
+	//	}
+	//case "discussion":
+	//	err := service.UpdateDiscussionCNT(pid)
+	//	if err != nil {
+	//		fmt.Println(err)
+	//		tool.RespErrorWithData(ctx, "增加回复人数失败")
+	//		return
+	//	}
+	//
+	//}
 
 	tool.RespSuccessfulWithData(ctx, "回复成功")
 

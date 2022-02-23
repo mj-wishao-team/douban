@@ -11,6 +11,6 @@ func GetReply(id int64, kind string, start int) ([]model.Reply, error) {
 }
 
 func ReplyPost(Reply model.Reply) error {
-	err := dao.ReplyPost(Reply)
+	err := dao.PostReply(Reply)
 	return err
 }
