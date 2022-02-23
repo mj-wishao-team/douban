@@ -136,13 +136,50 @@ func ChangUserName(name string, id int64) error {
 
 //删除账号
 func DeleteAccount(id int64) error {
-	sqlStr := "DELETE FROM user WHERE( id= ?)"
-	stmt, err := DB.Prepare(sqlStr)
+	tx, err := DB.Begin()
+	sqlStr1 := "DELETE FROM user WHERE id= ?"
+	sqlStr2 := "DELETE FROM large_commenr WHERE uid= ?"
+	sqlStr3 := "DELETE FROM short_commenr WHERE uid= ?"
+	sqlStr4 := "DELETE FROM  discussion WHERE uid= ?"
+	stmt, err := tx.Prepare(sqlStr1)
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
 	_, err = stmt.Exec(id)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	stmt, err = tx.Prepare(sqlStr2)
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(id)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	stmt, err = tx.Prepare(sqlStr3)
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(id)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	stmt, err = tx.Prepare(sqlStr4)
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(id)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit()
+
 	return err
 
 }
