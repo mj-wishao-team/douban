@@ -54,9 +54,18 @@ func GetMovieListByTag(tag string, sort string, start int) ([]model.MovieList, e
 }
 
 //电影排行榜
-func GetMovieLeaderboard(start int) ([]model.MovieList, error) {
-	MovieList, err := dao.GetMovieLeaderboard(start)
-	return MovieList, err
+func GetMovieLeaderboard(start int, rp *dao.RedisStore) (MovieList []model.MovieList, err error) {
+
+	if flag := rp.GetRedisPages(rp.PreKey, &MovieList); flag == true {
+		return
+	}
+
+	MovieList, err = dao.GetMovieLeaderboard(start)
+
+	if err := rp.SetRedisPages(rp.PreKey, &MovieList); err != nil {
+		return nil, err
+	}
+	return
 }
 
 //影片评价
@@ -129,4 +138,8 @@ func parsePctToNewPct(v string, Totalcnt float64) (per string, err error) {
 		return v, err
 	}
 	return (strings.TrimLeft(strconv.FormatFloat((ret*Totalcnt+100)/(Totalcnt+1)*100, 'f', 2, 64), "0.") + "%"), err
+}
+
+func JudgeTokenAndMessage() {
+
 }

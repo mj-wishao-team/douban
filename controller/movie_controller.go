@@ -1,12 +1,14 @@
 package controller
 
 import (
+	"douban/dao"
 	"douban/service"
 	"douban/tool"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type MovieController struct {
@@ -24,8 +26,9 @@ func getMovie(ctx *gin.Context) {
 
 	accessToken := ctx.PostForm("access_token")
 	refreshToken := ctx.PostForm("refresh_token")
-	Id, err := strconv.ParseInt(ctx.Param("mid"), 10, 64)
 
+	Id, err := strconv.ParseInt(ctx.Param("mid"), 10, 64)
+	//service.JudgeTokenAndMessage(accessToken,refreshToken,Id)
 	if err != nil {
 		tool.RespErrorWithData(ctx, err)
 		fmt.Println("getMovie_ParseInt ERR is", err)
@@ -214,13 +217,15 @@ func GetMovieList(ctx *gin.Context) {
 
 //排行榜
 func getMovieLeaderboard(ctx *gin.Context) {
+
 	start, err := strconv.Atoi(ctx.PostForm("start"))
 	if err != nil {
 		tool.RespErrorWithData(ctx, "解析失败")
 		fmt.Println("Parase Is ERR ", err)
 		return
 	}
-	ML, err := service.GetMovieLeaderboard(start)
+	rp := dao.NewRedisStore("Leaderboard"+strconv.Itoa(start), time.Hour*24, ctx)
+	ML, err := service.GetMovieLeaderboard(start, rp)
 	if err != nil {
 		tool.RespInternalError(ctx)
 		fmt.Println("GetMovieLeaderboard Is ERR", err)
