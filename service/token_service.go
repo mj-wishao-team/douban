@@ -4,7 +4,9 @@ import (
 	"douban/model"
 	"douban/tool"
 	"errors"
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 	"time"
 )
 
@@ -57,4 +59,42 @@ func ParseToken(accessTokenString, refreshTokenString string) (*model.MyClaims, 
 	}
 
 	return nil, false, errors.New("invalid token")
+}
+func JudgeToken(accessToken, refreshToken string, ctx *gin.Context) (string, string, int64) {
+	if accessToken != "" && refreshToken != "" {
+		Claims, flag, err := ParseToken(accessToken, refreshToken)
+
+		if err != nil {
+			tool.RespErrorWithData(ctx, "token错误")
+			fmt.Println("err", err)
+			return "", "", Claims.User.Id
+		}
+		if flag {
+			accessToken, err := GenToken(Claims.User, 3600*24, "ACCESS_TOKEN")
+			if err != nil {
+				fmt.Println("JWTAuthMiddleware_CreateAccessTokenErr:", err)
+				tool.RespInternalError(ctx)
+				return "", "", Claims.User.Id
+			}
+
+			//refreshToken 一周
+			refreshToken, err := GenToken(Claims.User, 604800, "REFRESH_TOKEN")
+			if err != nil {
+				fmt.Println("JWTAuthMiddleware_CreateRefreshTokenErr:", err)
+				tool.RespInternalError(ctx)
+				return "", "", Claims.User.Id
+			}
+			return accessToken, refreshToken, Claims.User.Id
+
+		} else {
+			if err != nil {
+				tool.RespErrorWithData(ctx, "注销失败")
+				fmt.Println("suicideAccount_DeleteAccount  is ERR", err)
+				return "", "", Claims.User.Id
+			}
+			return accessToken, refreshToken, Claims.User.Id
+
+		}
+	}
+	return "", "", 0
 }

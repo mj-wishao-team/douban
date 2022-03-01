@@ -139,7 +139,3 @@ func parsePctToNewPct(v string, Totalcnt float64) (per string, err error) {
 	}
 	return (strings.TrimLeft(strconv.FormatFloat((ret*Totalcnt+100)/(Totalcnt+1)*100, 'f', 2, 64), "0.") + "%"), err
 }
-
-func JudgeTokenAndMessage() {
-
-}
