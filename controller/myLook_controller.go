@@ -1,11 +1,13 @@
 package controller
 
 import (
+	"douban/dao"
 	"douban/service"
 	"douban/tool"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"net/http"
+	"strconv"
+	"time"
 )
 
 type MyLookController struct {
@@ -22,83 +24,43 @@ func GetMyLookMovieHome(ctx *gin.Context) {
 	accessToken := ctx.PostForm("access_token")
 	refreshToken := ctx.PostForm("refresh_token")
 
-	if accessToken != "" && refreshToken != "" {
-		Claims, flag, err := service.ParseToken(accessToken, refreshToken)
+	accessToken, refreshToken, uid := service.JudgeToken(accessToken, refreshToken, ctx)
 
-		if err != nil {
-			tool.RespErrorWithData(ctx, "token错误")
-			fmt.Println("err", err)
+	if uid != 0 && accessToken != "" && refreshToken != "" {
+
+		var Online = make(map[string]interface{})
+		rp := dao.NewRedisStore("MyLook_"+"_"+strconv.FormatInt(uid, 10), time.Hour*24, ctx)
+		if flag := rp.GetRedisPages(rp.PreKey, &Online); flag == true {
+			tool.RespSuccessfulWithData(ctx, Online)
 			return
 		}
-		if flag {
-			accessToken, err := service.GenToken(Claims.User, 3600*24, "ACCESS_TOKEN")
-			if err != nil {
-				fmt.Println("JWTAuthMiddleware_CreateAccessTokenErr:", err)
-				tool.RespInternalError(ctx)
-				return
-			}
 
-			//refreshToken 一周
-			refreshToken, err := service.GenToken(Claims.User, 604800, "REFRESH_TOKEN")
-			if err != nil {
-				fmt.Println("JWTAuthMiddleware_CreateRefreshTokenErr:", err)
-				tool.RespInternalError(ctx)
-				return
-			}
+		MSSeen, err := service.GetMyLook(uid)
 
-			MSSeen, err := service.GetMyLook(Claims.User.Id)
-
-			if err != nil && err.Error() != "sql: no rows in result set" {
-				fmt.Println("GetMyLook Is ERR", err)
-				tool.RespInternalError(ctx)
-				return
-			}
-
-			Reviews, err := service.GetLargeCommentByUid(Claims.User.Id)
-			if err != nil && err.Error() != "sql: no rows in result set" {
-				tool.RespErrorWithData(ctx, "影评获取失败")
-				fmt.Println("GetLargeCommentByUid err is", err)
-				return
-			}
-			ctx.JSON(http.StatusOK, gin.H{
-				"Movies":        MSSeen,
-				"影评":            Reviews,
-				"status":        "true",
-				"refresh_token": refreshToken,
-				"access_token":  accessToken,
-			})
-
-		} else {
-
-			//MSWantLook, err := service.GetMyLook(Claims.User.Id, "想看")
-
-			MSSeen, err := service.GetMyLook(Claims.User.Id)
-
-			if err != nil && err.Error() != "sql: no rows in result set" {
-				fmt.Println("GetMyLook Is ERR", err)
-				tool.RespInternalError(ctx)
-				return
-			}
-
-			Reviews, err := service.GetLargeCommentByUid(Claims.User.Id)
-			if err != nil && err.Error() != "sql: no rows in result set" {
-				tool.RespErrorWithData(ctx, "影评获取失败")
-				fmt.Println("GetLargeCommentByUid err is", err)
-				return
-			}
-
-			ctx.JSON(http.StatusOK, gin.H{
-				"Movies":        MSSeen,
-				"影评":            Reviews,
-				"status":        "true",
-				"refresh_token": refreshToken,
-				"access_token":  accessToken,
-			})
+		if err != nil && err.Error() != "sql: no rows in result set" {
+			fmt.Println("GetMyLook Is ERR", err)
+			tool.RespInternalError(ctx)
+			return
 		}
-	} else {
-		tool.RespErrorWithData(ctx, "请重新登录")
-	}
 
+		Reviews, err := service.GetLargeCommentByUid(uid)
+		if err != nil && err.Error() != "sql: no rows in result set" {
+			tool.RespErrorWithData(ctx, "影评获取失败")
+			fmt.Println("GetLargeCommentByUid err is", err)
+			return
+		}
+		Online = map[string]interface{}{
+			"Movies":        MSSeen,
+			"影评":            Reviews,
+			"status":        "true",
+			"refresh_token": refreshToken,
+			"access_token":  accessToken,
+		}
+		rp.SetRedisPages(rp.PreKey, &Online)
+		tool.RespSuccessfulWithData(ctx, Online)
+	} else {
+		tool.RespErrorWithData(ctx, "未登录或token错误")
+	}
 }
 
 //获取自己的影评
