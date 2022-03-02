@@ -62,7 +62,7 @@ func updateLikeComment(ctx *gin.Context) {
 	}
 	like, err := strconv.Atoi(ctx.PostForm("like"))
 	if err != nil {
-		tool.RespErrorWithData(ctx, "解析1失败")
+		tool.RespErrorWithData(ctx, "解析2失败")
 		fmt.Println("updateLikeComment is ERR", err)
 		return
 	}
@@ -110,7 +110,7 @@ func putMovieShortComment(ctx *gin.Context) {
 		fmt.Println("putMovieShortComment is ERR", err)
 		return
 	}
-
+	//想看or看过
 	MovieType := ctx.PostForm("type")
 
 	star, err := strconv.Atoi(ctx.PostForm("star"))
@@ -120,7 +120,6 @@ func putMovieShortComment(ctx *gin.Context) {
 		tool.RespErrorWithData(ctx, "解析2失败")
 		return
 	}
-	//想看or看过
 
 	shortComment := html.UnescapeString(html.EscapeString(ctx.PostForm("comment")))
 
@@ -130,7 +129,7 @@ func putMovieShortComment(ctx *gin.Context) {
 		return
 	}
 
-	ShorComment := model.ShortComment{
+	ShorComment := model.Comment{
 		Mid:     movieId,
 		Uid:     uid,
 		Comment: shortComment,
@@ -164,7 +163,7 @@ func putMovieShortComment(ctx *gin.Context) {
 
 //获取短评
 func getShortComment(ctx *gin.Context) {
-	Mid, err := strconv.ParseInt(ctx.Query("mid"), 10, 64)
+	Mid, err := strconv.ParseInt(ctx.Param("mid"), 10, 64)
 	if err != nil {
 		tool.RespErrorWithData(ctx, "解析失败")
 		return
@@ -205,7 +204,7 @@ func putMovieLargeComment(ctx *gin.Context) {
 		return
 	}
 
-	LargeComment := model.LargeComment{
+	LargeComment := model.Review{
 		Mid:     movieId,
 		Uid:     uid,
 		Title:   title,

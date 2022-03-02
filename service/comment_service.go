@@ -6,24 +6,24 @@ import (
 )
 
 //增加影评回复人数
-func UpdateReviewCNT(id int64) error {
-	err := dao.UpdateReviewCNT(id)
-	return err
-}
+//func UpdateReviewCNT(id int64) error {
+//	err := dao.UpdateReviewCNT(id)
+//	return err
+//}
 
 //增加讨论回复人数
-func UpdateDiscussionCNT(id int64) error {
-	err := dao.UpdateDiscussionCNT(id)
-	return err
-
-}
-
-//增加回复的回复人数
-func UpdateReplyCNT(id int64) error {
-	err := dao.UpdateReplyCNT(id)
-	return err
-
-}
+//func UpdateDiscussionCNT(id int64) error {
+//	err := dao.UpdateDiscussionCNT(id)
+//	return err
+//
+//}
+//
+////增加回复的回复人数
+//func UpdateReplyCNT(id int64) error {
+//	err := dao.UpdateReplyCNT(id)
+//	return err
+//
+//}
 
 //短评点赞
 func UpdateCommentLike(id int64, like int) error {
@@ -38,55 +38,55 @@ func UpdateReviewLike(id int64, like int) error {
 }
 
 //获取短评
-func GetShortCommentByUidAndMid(uid, mid int64) ([]model.ShortComment, error) {
+func GetShortCommentByUidAndMid(uid, mid int64) ([]model.Comment, error) {
 	SC, err := dao.GetShortCommentByUidAndMid(uid, mid)
 	return SC, err
 }
 
 //发布短评
-func PutMovieShortComment(shortComment model.ShortComment) error {
+func PutMovieShortComment(shortComment model.Comment) error {
 	err := dao.InsertShortComment(shortComment)
 	return err
 }
 
 //发表影评
-func PutMovieLargeComment(Comment model.LargeComment) error {
+func PutMovieLargeComment(Comment model.Review) error {
 	err := dao.InsertLargeComment(Comment)
 	return err
 }
 
 //获取短评
-func GetShortCommentSlice(mid int64) ([]model.ShortComment, error) {
+func GetShortCommentSlice(mid int64) ([]model.Comment, error) {
 	commentSlice, err := dao.QueryShortCommentByMid(mid)
 	return commentSlice, err
 }
 
-func GetMovieComment(mid int64) ([]model.ShortComment, error) {
+func GetMovieComment(mid int64) ([]model.Comment, error) {
 	commentSlice, err := dao.GetMovieComment(mid)
 	return commentSlice, err
 }
 
 //获取影评
-func GetLargeCommentSlice(mid int64) ([]model.LargeComment, error) {
+func GetLargeCommentSlice(mid int64) ([]model.Review, error) {
 	commentSlice, err := dao.QueryLargeCommentByMid(mid)
 	return commentSlice, err
 }
 
-func GetMovieReviews(mid int64) ([]model.LargeComment, error) {
+func GetMovieReviews(mid int64) ([]model.Review, error) {
 	commentSlice, err := dao.GetMovieReviews(mid)
 	return commentSlice, err
 
 }
 
 //获取单个影评
-func GetReview(id int64) ([]model.LargeComment, error) {
+func GetReview(id int64) ([]model.Review, error) {
 	LC, err := dao.GetReview(id)
 	return LC, err
 
 }
 
 //获取自己的影评
-func GetLargeCommentByUid(Uid int64) ([]model.LargeComment, error) {
+func GetLargeCommentByUid(Uid int64) ([]model.Review, error) {
 	Comment, err := dao.QueryLargeCommentByUid(Uid)
 	return Comment, err
 }

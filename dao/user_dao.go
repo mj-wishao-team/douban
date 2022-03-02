@@ -301,7 +301,7 @@ func QueryByUserName(username string) (model.User, error) {
 func QueryByEmail(email string) (model.User, error) {
 	user := model.User{}
 
-	sqlStr := "SELECT id,username,password,email,phone,salt,avatar,domain_name,habitat,hometown,birthday,statement,followers,followings FROM user WHERE emial= ? "
+	sqlStr := "SELECT id,username,password,email,phone,salt,avatar,domain_name,habitat,hometown,birthday,statement,followers,followings FROM users WHERE emial= ? "
 	Stmt, err := DB.Prepare(sqlStr)
 	defer Stmt.Close()
 
@@ -323,28 +323,33 @@ func QueryByEmail(email string) (model.User, error) {
 }
 
 //根据电话查询
+//func QueryByPhone(phone string) (model.User, error) {
+//	user := model.User{}
+//
+//	sqlStr := "SELECT id,username,password,email,phone,salt,avatar,domain_name,habitat,hometown,birthday,statement,followers,followings FROM users WHERE phone= ? "
+//	Stmt, err := DB.Prepare(sqlStr)
+//	defer Stmt.Close()
+//
+//	if err != nil {
+//		return user, err
+//	}
+//
+//	row := Stmt.QueryRow(phone)
+//	if row.Err() != nil {
+//		return user, row.Err()
+//	}
+//
+//	err = row.Scan(&user.Id, &user.Username, &user.Password, &user.Email, &user.Phone, &user.Salt, &user.Avatar, &user.DomainName, &user.Habitat, &user.Username, &user.Birthday, &user.Statement, &user.Followers, &user.Followings)
+//	if err != nil {
+//		return user, err
+//	}
+//
+//	return user, nil
+//}
 func QueryByPhone(phone string) (model.User, error) {
 	user := model.User{}
-
-	sqlStr := "SELECT id,username,password,email,phone,salt,avatar,domain_name,habitat,hometown,birthday,statement,followers,followings FROM user WHERE phone= ? "
-	Stmt, err := DB.Prepare(sqlStr)
-	defer Stmt.Close()
-
-	if err != nil {
-		return user, err
-	}
-
-	row := Stmt.QueryRow(phone)
-	if row.Err() != nil {
-		return user, row.Err()
-	}
-
-	err = row.Scan(&user.Id, &user.Username, &user.Password, &user.Email, &user.Phone, &user.Salt, &user.Avatar, &user.DomainName, &user.Habitat, &user.Username, &user.Birthday, &user.Statement, &user.Followers, &user.Followings)
-	if err != nil {
-		return user, err
-	}
-
-	return user, nil
+	rs := Db.Where(&model.User{Phone: phone}).Find(&user)
+	return user, rs.Error
 }
 
 //插入User信息
